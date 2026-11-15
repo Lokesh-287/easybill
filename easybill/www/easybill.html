@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EasyBill — GST Billing & POS</title>
+    {{ frontend_head | safe }}
+  </head>
+  <body class="bg-slate-100 text-slate-800 antialiased h-screen overflow-hidden">
+    <div id="app" class="h-full"></div>
+    <script>
+      window.easybill_boot = {{ boot | tojson }};
+    </script>
+    {{ frontend_scripts | safe }}
+  </body>
+</html>

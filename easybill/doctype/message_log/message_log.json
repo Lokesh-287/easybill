@@ -1,0 +1,66 @@
+{
+  "doctype": "DocType",
+  "name": "Message Log",
+  "module": "Easybill",
+  "issingle": 0,
+  "custom": 0,
+  "fields": [
+    {
+      "fieldname": "to",
+      "fieldtype": "Data",
+      "label": "To Mobile",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "template_key",
+      "fieldtype": "Data",
+      "label": "Template Key",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "payload",
+      "fieldtype": "Long Text",
+      "label": "Payload JSON"
+    },
+    {
+      "fieldname": "status",
+      "fieldtype": "Select",
+      "label": "Status",
+      "options": "queued\nsent\ndelivered\nread\nfailed",
+      "default": "queued",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "provider_message_id",
+      "fieldtype": "Data",
+      "label": "Meta WAMID"
+    },
+    {
+      "fieldname": "error",
+      "fieldtype": "Small Text",
+      "label": "Error Reason"
+    },
+    {
+      "fieldname": "reference_doctype",
+      "fieldtype": "Link",
+      "options": "DocType",
+      "label": "Ref DocType"
+    },
+    {
+      "fieldname": "reference_name",
+      "fieldtype": "Data",
+      "label": "Ref Name"
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1
+    }
+  ],
+  "autoname": "ML-.#####"
+}

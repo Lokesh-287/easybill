@@ -1,0 +1,57 @@
+{
+  "doctype": "DocType",
+  "name": "Day Close",
+  "module": "Easybill",
+  "issingle": 0,
+  "custom": 0,
+  "fields": [
+    {
+      "fieldname": "date",
+      "fieldtype": "Date",
+      "label": "Date",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "expected_cash",
+      "fieldtype": "Currency",
+      "label": "Expected Cash",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "counted_cash",
+      "fieldtype": "Currency",
+      "label": "Counted Cash",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "difference",
+      "fieldtype": "Currency",
+      "label": "Difference",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "note",
+      "fieldtype": "Small Text",
+      "label": "Audit Note"
+    },
+    {
+      "fieldname": "closed_by",
+      "fieldtype": "Link",
+      "options": "User",
+      "label": "Closed By"
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1
+    }
+  ],
+  "autoname": "DC-.YYYY.-.MM.-.DD.-.#####"
+}

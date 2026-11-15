@@ -1,0 +1,98 @@
+{
+  "doctype": "DocType",
+  "name": "Shop Config",
+  "module": "Easybill",
+  "issingle": 1,
+  "custom": 0,
+  "fields": [
+    {
+      "fieldname": "shop_name",
+      "fieldtype": "Data",
+      "label": "Shop Name",
+      "reqd": 1
+    },
+    {
+      "fieldname": "business_type",
+      "fieldtype": "Select",
+      "label": "Business Type",
+      "options": "Retail\nWholesale\nMedical\nTextile\nHardware\nMobile\nGeneral",
+      "default": "General"
+    },
+    {
+      "fieldname": "niche_template",
+      "fieldtype": "Data",
+      "label": "Niche Template"
+    },
+    {
+      "fieldname": "gst_mode",
+      "fieldtype": "Select",
+      "label": "GST Mode",
+      "options": "regular\ncomposition\noff",
+      "default": "regular"
+    },
+    {
+      "fieldname": "allow_negative_stock",
+      "fieldtype": "Check",
+      "label": "Allow Negative Stock",
+      "default": 0
+    },
+    {
+      "fieldname": "invoice_prefix",
+      "fieldtype": "Data",
+      "label": "Invoice Prefix",
+      "default": "INV-"
+    },
+    {
+      "fieldname": "print_style",
+      "fieldtype": "Select",
+      "label": "Print Style",
+      "options": "a4\nthermal_3in\nthermal_2in",
+      "default": "thermal_3in"
+    },
+    {
+      "fieldname": "default_language",
+      "fieldtype": "Select",
+      "label": "Default Language",
+      "options": "en\nta",
+      "default": "ta"
+    },
+    {
+      "fieldname": "upi_id",
+      "fieldtype": "Data",
+      "label": "UPI ID"
+    },
+    {
+      "fieldname": "whatsapp_enabled",
+      "fieldtype": "Check",
+      "label": "WhatsApp Enabled",
+      "default": 1
+    },
+    {
+      "fieldname": "plan_code",
+      "fieldtype": "Select",
+      "label": "Plan Code",
+      "options": "free_trial\nstarter\nstandard\npro",
+      "default": "standard"
+    },
+    {
+      "fieldname": "plan_expiry",
+      "fieldtype": "Date",
+      "label": "Plan Expiry"
+    },
+    {
+      "fieldname": "timezone",
+      "fieldtype": "Data",
+      "label": "Timezone",
+      "default": "Asia/Kolkata"
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1
+    }
+  ]
+}

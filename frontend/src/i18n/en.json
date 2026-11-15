@@ -1,0 +1,9 @@
+{
+  "bill": "Bill",
+  "received": "Received",
+  "to_receive": "To receive",
+  "to_pay": "To pay",
+  "stock": "Stock",
+  "save_and_print": "Save and Print (F8)",
+  "hold": "Hold (F9)"
+}
