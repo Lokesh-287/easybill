@@ -2,12 +2,27 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>EasyBill — GST Billing & POS</title>
-    <script type="module" crossorigin src="/assets/easybill/frontend/assets/index-B1LVmYwn.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/easybill/frontend/assets/index-C-WUEPpR.css">
+    <!-- PWA Web App Manifest -->
+    <link rel="manifest" href="/assets/easybill/frontend/manifest.json" />
+    <meta name="theme-color" content="#4f46e5" />
+    <!-- Apple iOS PWA Support -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="EasyBill POS" />
+    <link rel="apple-touch-icon" href="/assets/easybill/frontend/pwa-icon-192.svg" />
+    <script type="module" crossorigin src="/assets/easybill/frontend/assets/index-DTP0euJT.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/easybill/frontend/assets/index-CRL49TLJ.css">
   </head>
-  <body>
+  <body class="bg-slate-50 text-slate-900 antialiased overscroll-none">
     <div id="app"></div>
+    <script>
+      if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/assets/easybill/frontend/sw.js').catch(() => {});
+        });
+      }
+    </script>
   </body>
 </html>

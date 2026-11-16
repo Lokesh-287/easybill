@@ -333,12 +333,19 @@
     <!-- Main Workspace Area -->
     <div class="flex-1 flex flex-col min-w-0 bg-slate-50 overflow-hidden">
       <!-- Topbar Header -->
-      <header class="h-16 bg-white border-b border-slate-200/80 px-6 flex items-center justify-between flex-shrink-0 z-10">
-        <!-- Left: Breadcrumb / Active Route Title -->
-        <div class="flex items-center space-x-3">
+      <header class="h-16 bg-white border-b border-slate-200/80 px-4 sm:px-6 flex items-center justify-between flex-shrink-0 z-10">
+        <!-- Left: Breadcrumb / Active Route Title & Mobile Awesomebar Trigger -->
+        <div class="flex items-center space-x-2.5">
+          <button
+            @click="openAwesomebar"
+            class="md:hidden p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition"
+            title="Search / Awesomebar (Ctrl+K)"
+          >
+            <Search class="w-4 h-4" />
+          </button>
           <div class="text-xs text-slate-400 font-medium flex items-center space-x-1.5">
-            <span>Dashboard</span>
-            <span class="text-slate-300">/</span>
+            <span class="hidden sm:inline">Dashboard</span>
+            <span class="hidden sm:inline text-slate-300">/</span>
             <span class="font-bold text-slate-900 text-sm">
               {{ currentScreenTitle }}
             </span>
@@ -365,7 +372,7 @@
         </div>
 
         <!-- Right: Actions, Badges & Toggles -->
-        <div class="flex items-center space-x-3">
+        <div class="flex items-center space-x-2 sm:space-x-3">
           <!-- Fast Route CTA -->
           <router-link
             v-if="$route.path !== '/bill/new'"
@@ -377,13 +384,14 @@
           </router-link>
 
           <!-- Printer Status -->
-          <div
-            title="Thermal Printer Status: Ready (RP3200 80mm)"
-            class="hidden sm:flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-[11px] font-medium text-slate-600"
+          <button
+            @click="connectBluetoothPrinter"
+            title="Bluetooth / Thermal Printer: Click to connect portable 58mm/80mm printer"
+            class="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200/80 border border-slate-200 text-[11px] font-medium text-slate-600 transition"
           >
             <Printer class="w-3.5 h-3.5 text-emerald-600" />
-            <span class="font-mono text-[10px]">RP3200 Ready</span>
-          </div>
+            <span class="font-mono text-[10px] hidden sm:inline">{{ isBluetoothConnected ? bluetoothDeviceName : 'BT Print' }}</span>
+          </button>
 
           <!-- Cloud Sync Badge -->
           <div
@@ -393,7 +401,7 @@
               <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
-            <span>Synced</span>
+            <span class="hidden sm:inline">Synced</span>
           </div>
 
           <!-- Language Switcher -->
@@ -401,15 +409,153 @@
             @click="toggleLang"
             class="px-2.5 py-1 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition"
           >
-            🌐 {{ currentLang === 'en' ? 'தமிழ்' : 'English' }}
+            🌐 {{ currentLang === 'en' ? 'தமிழ்' : 'En' }}
           </button>
         </div>
       </header>
 
       <!-- Main Screen View -->
-      <main class="flex-1 overflow-hidden relative">
+      <main class="flex-1 overflow-hidden relative pb-16 lg:pb-0">
         <router-view />
       </main>
+
+      <!-- Mobile Bottom Navigation Bar (lg:hidden) -->
+      <nav class="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-t border-slate-200 z-40 flex items-center justify-around px-2 shadow-lg">
+        <router-link
+          to="/bill/new"
+          class="flex flex-col items-center justify-center flex-1 py-1 text-slate-400 hover:text-primary-600 transition"
+          :class="{ 'text-primary-600 font-extrabold': $route.path === '/bill/new' }"
+        >
+          <Receipt class="w-5 h-5" />
+          <span class="text-[10px] mt-0.5">POS Bill</span>
+        </router-link>
+
+        <router-link
+          to="/sales"
+          class="flex flex-col items-center justify-center flex-1 py-1 text-slate-400 hover:text-primary-600 transition"
+          :class="{ 'text-primary-600 font-extrabold': $route.path === '/sales' }"
+        >
+          <FileText class="w-5 h-5" />
+          <span class="text-[10px] mt-0.5">Invoices</span>
+        </router-link>
+
+        <router-link
+          to="/stock"
+          class="flex flex-col items-center justify-center flex-1 py-1 text-slate-400 hover:text-primary-600 transition"
+          :class="{ 'text-primary-600 font-extrabold': $route.path === '/stock' }"
+        >
+          <Boxes class="w-5 h-5" />
+          <span class="text-[10px] mt-0.5">Stock</span>
+        </router-link>
+
+        <router-link
+          to="/mobile/owner"
+          class="flex flex-col items-center justify-center flex-1 py-1 text-slate-400 hover:text-indigo-600 transition"
+          :class="{ 'text-indigo-600 font-extrabold': $route.path === '/mobile/owner' }"
+        >
+          <Crown class="w-5 h-5" />
+          <span class="text-[10px] mt-0.5">Owner Live</span>
+        </router-link>
+
+        <button
+          @click="showMobileMenu = true"
+          class="flex flex-col items-center justify-center flex-1 py-1 text-slate-400 hover:text-primary-600 transition"
+        >
+          <Menu class="w-5 h-5" />
+          <span class="text-[10px] mt-0.5">More</span>
+        </button>
+      </nav>
+
+      <!-- Mobile Full Menu Slide-up Sheet -->
+      <div
+        v-if="showMobileMenu"
+        class="lg:hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex flex-col justify-end"
+        @click.self="showMobileMenu = false"
+      >
+        <div class="bg-white rounded-t-3xl shadow-2xl p-5 space-y-4 max-h-[80vh] overflow-y-auto animate-in slide-in-from-bottom duration-200">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div class="flex items-center space-x-2">
+              <Receipt class="w-5 h-5 text-primary-600" />
+              <span class="font-extrabold text-sm text-slate-900">EasyBill Mobile Menu</span>
+            </div>
+            <button @click="showMobileMenu = false" class="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg">✕</button>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5 text-xs">
+            <router-link
+              to="/cash"
+              @click="showMobileMenu = false"
+              class="p-3 bg-slate-50 hover:bg-slate-100 rounded-xl border border-slate-200 flex items-center space-x-2.5 font-bold text-slate-800"
+            >
+              <Banknote class="w-4 h-4 text-emerald-600" />
+              <span>Day Book</span>
+            </router-link>
+
+            <router-link
+              to="/purchase"
+              @click="showMobileMenu = false"
+              class="p-3 bg-slate-50 hover:bg-slate-100 rounded-xl border border-slate-200 flex items-center space-x-2.5 font-bold text-slate-800"
+            >
+              <ShoppingBag class="w-4 h-4 text-amber-600" />
+              <span>Purchases</span>
+            </router-link>
+
+            <router-link
+              to="/items"
+              @click="showMobileMenu = false"
+              class="p-3 bg-slate-50 hover:bg-slate-100 rounded-xl border border-slate-200 flex items-center space-x-2.5 font-bold text-slate-800"
+            >
+              <Package class="w-4 h-4 text-indigo-600" />
+              <span>Items Master</span>
+            </router-link>
+
+            <router-link
+              to="/parties"
+              @click="showMobileMenu = false"
+              class="p-3 bg-slate-50 hover:bg-slate-100 rounded-xl border border-slate-200 flex items-center space-x-2.5 font-bold text-slate-800"
+            >
+              <Users class="w-4 h-4 text-blue-600" />
+              <span>Khata Parties</span>
+            </router-link>
+
+            <router-link
+              to="/gst"
+              @click="showMobileMenu = false"
+              class="p-3 bg-slate-50 hover:bg-slate-100 rounded-xl border border-slate-200 flex items-center space-x-2.5 font-bold text-slate-800"
+            >
+              <ShieldCheck class="w-4 h-4 text-indigo-600" />
+              <span>GST Hub</span>
+            </router-link>
+
+            <router-link
+              to="/settings"
+              @click="showMobileMenu = false"
+              class="p-3 bg-slate-50 hover:bg-slate-100 rounded-xl border border-slate-200 flex items-center space-x-2.5 font-bold text-slate-800"
+            >
+              <Settings class="w-4 h-4 text-slate-600" />
+              <span>Settings</span>
+            </router-link>
+          </div>
+
+          <!-- Bottom Session Actions -->
+          <div class="pt-3 border-t border-slate-100 flex items-center space-x-2">
+            <router-link
+              to="/login"
+              @click="showMobileMenu = false"
+              class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-center text-xs"
+            >
+              Lock PIN Pad
+            </router-link>
+            <button
+              @click="connectBluetoothPrinter"
+              class="flex-1 py-2.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold rounded-xl text-center text-xs border border-indigo-200 flex items-center justify-center space-x-1"
+            >
+              <Printer class="w-3.5 h-3.5" />
+              <span>Pair Bluetooth</span>
+            </button>
+          </div>
+        </div>
+      </div>
 
       <!-- Global Awesomebar Command Palette (Ctrl+K) -->
       <Awesomebar ref="awesomebarRef" />
@@ -421,6 +567,8 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { OfflineSyncService } from '../services/offlineSync';
+import { useToast } from '../services/toast';
+import { bluetoothPrinter } from '../services/bluetoothPrinter';
 import Awesomebar from '../components/Awesomebar.vue';
 import {
   Receipt,
@@ -437,19 +585,44 @@ import {
   LogOut,
   Search,
   Printer,
-  Plus
+  Plus,
+  Crown,
+  Menu,
+  Banknote
 } from '@lucide/vue';
 
 const route = useRoute();
 const router = useRouter();
+const toast = useToast();
 const currentLang = ref<'en' | 'ta'>('en');
 const awesomebarRef = ref<any>(null);
+
+const showMobileMenu = ref(false);
+const isBluetoothConnected = ref(false);
+const bluetoothDeviceName = ref('BT Print');
 
 function openAwesomebar() {
   awesomebarRef.value?.open();
 }
 
+async function connectBluetoothPrinter() {
+  showMobileMenu.value = false;
+  try {
+    const success = await bluetoothPrinter.connect();
+    if (success) {
+      isBluetoothConnected.value = true;
+      bluetoothDeviceName.value = bluetoothPrinter.getDeviceName();
+      toast.success('Bluetooth Printer Connected', `Paired with ${bluetoothDeviceName.value} (58mm/80mm)`);
+    }
+  } catch (err: any) {
+    if (err && err.name !== 'NotFoundError') {
+      toast.error('Bluetooth Connection Error', err.message || 'Could not pair device');
+    }
+  }
+}
+
 const currentScreenTitle = computed(() => {
+  if (route.path.startsWith('/mobile/owner')) return 'Store Owner Live Companion';
   if (route.path.startsWith('/items')) return 'Items Catalog & Inventory (SCR-C1)';
   if (route.path.startsWith('/sales')) return 'Invoices & Billing Dashboard (SCR-E2)';
   if (route.path.startsWith('/parties')) return 'Customers & Vendors (SCR-D1)';

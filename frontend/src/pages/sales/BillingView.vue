@@ -44,6 +44,16 @@
           <span :class="['w-2 h-2 rounded-full', isBarcodeMode ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300']"></span>
         </button>
 
+        <!-- Mobile Camera Barcode Scanner Button -->
+        <button
+          @click="openCameraScanner"
+          class="px-3 py-2.5 rounded-xl border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold flex items-center space-x-1.5 transition shadow-xs"
+          title="Open Mobile Camera Barcode Scanner"
+        >
+          <Camera class="w-4 h-4 text-indigo-600" />
+          <span class="hidden sm:inline">Camera</span>
+        </button>
+
         <!-- Quick Add Item Button (SCR-F5) -->
         <button
           @click="showQuickAddModal = true"
@@ -210,12 +220,61 @@
           </div>
         </div>
       </div>
+
+      <!-- Sticky Mobile Cart Summary Bar (lg:hidden) -->
+      <div
+        v-if="cart.length > 0"
+        @click="showMobileCart = true"
+        class="lg:hidden sticky bottom-1 left-0 right-0 p-3 bg-slate-900 text-white rounded-2xl shadow-xl flex items-center justify-between cursor-pointer border border-slate-800 z-30 animate-in slide-in-from-bottom duration-150"
+      >
+        <div class="flex items-center space-x-2.5">
+          <div class="w-8 h-8 rounded-xl bg-primary-600 flex items-center justify-center font-bold text-xs shadow-md">
+            {{ cart.length }}
+          </div>
+          <div>
+            <div class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Cart Total</div>
+            <div class="text-sm font-extrabold font-tabular text-emerald-400">₹{{ formatMoney(roundedGrandTotal) }}</div>
+          </div>
+        </div>
+
+        <button
+          @click="showMobileCart = true"
+          class="px-3.5 py-1.5 bg-primary-600 hover:bg-primary-700 text-white font-bold text-xs rounded-xl shadow-md flex items-center space-x-1.5 transition"
+        >
+          <span>View Cart / Pay (F8)</span>
+          <ArrowRight class="w-3.5 h-3.5" />
+        </button>
+      </div>
     </div>
 
     <!-- ========================================== -->
     <!-- RIGHT PANE: Bill Cart & Payment Split      -->
     <!-- ========================================== -->
-    <div class="lg:w-5/12 flex flex-col bg-white border-l border-slate-200/90 shadow-sm overflow-hidden flex-shrink-0">
+    <div
+      :class="[
+        'flex flex-col bg-white border-l border-slate-200/90 shadow-sm overflow-hidden flex-shrink-0',
+        'lg:w-5/12',
+        showMobileCart
+          ? 'fixed inset-0 z-50 p-2 sm:p-4 bg-slate-900/60 backdrop-blur-xs flex justify-end animate-in fade-in'
+          : 'hidden lg:flex'
+      ]"
+    >
+      <div
+        :class="[
+          'flex flex-col w-full h-full bg-white overflow-hidden',
+          showMobileCart ? 'rounded-2xl shadow-2xl max-w-lg' : ''
+        ]"
+      >
+        <!-- Mobile Cart Header Close Button -->
+        <div v-if="showMobileCart" class="p-3 bg-slate-900 text-white flex items-center justify-between lg:hidden">
+          <span class="text-xs font-bold">Shopping Cart ({{ cart.length }} items)</span>
+          <button
+            @click="showMobileCart = false"
+            class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-lg transition"
+          >
+            ← Back to Catalog
+          </button>
+        </div>
       <!-- Customer Selector Header -->
       <div class="p-3.5 border-b border-slate-200/90 bg-slate-50/90 flex items-center justify-between">
         <div
@@ -498,6 +557,7 @@
         </div>
       </div>
     </div>
+  </div>
 
     <!-- ========================================== -->
     <!-- MODAL 1: Thermal Receipt Preview Modal     -->
@@ -590,6 +650,13 @@
           >
             <Share2 class="w-3.5 h-3.5" />
             <span>WhatsApp</span>
+          </button>
+          <button
+            @click="printViaBluetooth"
+            class="flex-1 py-2 px-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs rounded-xl border border-indigo-200 flex items-center justify-center space-x-1 transition"
+          >
+            <Printer class="w-3.5 h-3.5 text-indigo-600" />
+            <span>BT Print</span>
           </button>
           <button
             @click="triggerPrint"
@@ -839,12 +906,17 @@
         </div>
       </div>
     </div>
+
+    <!-- Mobile Camera Barcode Scanner Modal Component -->
+    <CameraBarcodeScanner ref="cameraScannerRef" @scan="handleBarcodeScanned" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useToast } from '../../services/toast';
+import { bluetoothPrinter } from '../../services/bluetoothPrinter';
+import CameraBarcodeScanner from '../../components/CameraBarcodeScanner.vue';
 import {
   Search,
   Plus,
@@ -861,7 +933,9 @@ import {
   QrCode,
   CreditCard,
   Banknote,
-  Wallet
+  Wallet,
+  Camera,
+  ArrowRight
 } from '@lucide/vue';
 
 // Types
@@ -888,6 +962,62 @@ const isBarcodeMode = ref(false);
 const activeCategory = ref('All');
 const viewMode = ref<'grid' | 'list'>('grid');
 const searchInputRef = ref<HTMLInputElement | null>(null);
+
+// Mobile & Camera State
+const cameraScannerRef = ref<any>(null);
+const showMobileCart = ref(false);
+
+function openCameraScanner() {
+  cameraScannerRef.value?.open();
+}
+
+function handleBarcodeScanned(code: string) {
+  const clean = code.trim().toLowerCase();
+  const item = catalog.value.find(i =>
+    (i.barcode && i.barcode.toLowerCase() === clean) ||
+    i.code.toLowerCase() === clean
+  );
+  if (item) {
+    addToCart(item);
+    toast.success('Barcode Scanned', `${item.name} added to cart (₹${item.price.toFixed(2)})`);
+  } else {
+    toast.warning('Product Not Found', `No item matching barcode "${code}"`);
+  }
+}
+
+async function printViaBluetooth() {
+  if (!lastBill.value.items || !lastBill.value.items.length) return;
+  try {
+    const success = await bluetoothPrinter.printReceipt({
+      invoiceNo: lastBill.value.number,
+      date: lastBill.value.date,
+      time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+      storeName: 'EASYBILL SUPERMARKET',
+      storePhone: '9876543210',
+      gstin: '33AAAAA0000A1Z5',
+      customerName: lastBill.value.customer,
+      items: lastBill.value.items.map((i: any) => ({
+        name: i.name,
+        qty: i.qty,
+        price: i.price,
+        total: i.price * i.qty
+      })),
+      taxable: lastBill.value.taxable,
+      cgst: lastBill.value.tax / 2,
+      sgst: lastBill.value.tax / 2,
+      grandTotal: lastBill.value.total,
+      paymentMode: lastBill.value.mode
+    }, '58mm');
+
+    if (success) {
+      toast.success('Thermal Print', 'Receipt streamed to Bluetooth printer (58mm)');
+    }
+  } catch (err: any) {
+    if (err && err.name !== 'NotFoundError') {
+      toast.error('Bluetooth Print Error', err.message || 'Could not print to device');
+    }
+  }
+}
 
 // Modals
 const showReceiptModal = ref(false);

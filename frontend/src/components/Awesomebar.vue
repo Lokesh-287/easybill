@@ -128,7 +128,8 @@ import {
   MinusCircle,
   SlidersHorizontal,
   Lock,
-  Compass
+  Compass,
+  Crown
 } from '@lucide/vue';
 
 const router = useRouter();
@@ -144,6 +145,7 @@ const commandGroups = [
   {
     title: 'Navigation & Screens',
     items: [
+      { id: 'nav-owner', label: 'Store Owner Live Companion', subtitle: 'Mobile revenue, KPIs & Khata', icon: Crown, route: '/mobile/owner' },
       { id: 'nav-pos', label: 'Rapid Billing POS', subtitle: 'New bill terminal', icon: Receipt, route: '/bill/new', shortcut: 'F8' },
       { id: 'nav-sales', label: 'Invoices & Sales', subtitle: 'View billing history', icon: FileText, route: '/sales' },
       { id: 'nav-purchase', label: 'Purchases & Inward', subtitle: 'Vendor invoices & stock in', icon: ShoppingBag, route: '/purchase' },

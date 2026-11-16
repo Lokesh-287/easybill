@@ -11,6 +11,7 @@ import DayBookView from './pages/cash/DayBookView.vue';
 import GstDashboardView from './pages/gst/GstDashboardView.vue';
 import ReportsAnalyticsView from './pages/reports/ReportsAnalyticsView.vue';
 import SettingsView from './pages/settings/SettingsView.vue';
+import MobileOwnerDashboard from './pages/mobile/MobileOwnerDashboard.vue';
 import LoginView from './pages/auth/LoginView.vue';
 import SetupWizardView from './pages/setup/SetupWizardView.vue';
 
@@ -32,6 +33,7 @@ const routes = [
       { path: 'gst', component: GstDashboardView },
       { path: 'reports', component: ReportsAnalyticsView },
       { path: 'settings', component: SettingsView },
+      { path: 'mobile/owner', component: MobileOwnerDashboard },
       { path: ':pathMatch(.*)*', redirect: '/' }
     ]
   },
