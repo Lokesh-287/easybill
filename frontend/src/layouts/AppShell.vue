@@ -340,7 +340,7 @@
             <span>Dashboard</span>
             <span class="text-slate-300">/</span>
             <span class="font-bold text-slate-900 text-sm">
-              {{ $route.path === '/sales' ? 'Invoices & Billing Dashboard' : 'Express Billing POS Terminal' }}
+              {{ currentScreenTitle }}
             </span>
           </div>
         </div>
@@ -409,7 +409,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { useRoute } from 'vue-router';
 import {
   Receipt,
   FileText,
@@ -428,7 +429,21 @@ import {
   Plus
 } from '@lucide/vue';
 
+const route = useRoute();
 const currentLang = ref<'en' | 'ta'>('en');
+
+const currentScreenTitle = computed(() => {
+  if (route.path.startsWith('/items')) return 'Items Catalog & Inventory (SCR-C1)';
+  if (route.path.startsWith('/sales')) return 'Invoices & Billing Dashboard (SCR-E2)';
+  if (route.path.startsWith('/parties')) return 'Customers & Vendors (SCR-D1)';
+  if (route.path.startsWith('/purchase')) return 'Purchases & Inward Stock (SCR-F1)';
+  if (route.path.startsWith('/stock')) return 'Stock Summary & Movement (SCR-G1)';
+  if (route.path.startsWith('/cash')) return 'Day Book & Cash Drawer (SCR-I1)';
+  if (route.path.startsWith('/gst')) return 'GST Compliance Dashboard (SCR-K1)';
+  if (route.path.startsWith('/reports')) return 'Business Analytics & Reports (SCR-J1)';
+  if (route.path.startsWith('/settings')) return 'Settings & Hardware Configuration (SCR-B2)';
+  return 'Express Billing POS Terminal (SCR-E1)';
+});
 
 function toggleLang() {
   currentLang.value = currentLang.value === 'en' ? 'ta' : 'en';
