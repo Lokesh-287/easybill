@@ -409,8 +409,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { OfflineSyncService } from '../services/offlineSync';
 import {
   Receipt,
   FileText,
@@ -430,6 +431,7 @@ import {
 } from '@lucide/vue';
 
 const route = useRoute();
+const router = useRouter();
 const currentLang = ref<'en' | 'ta'>('en');
 
 const currentScreenTitle = computed(() => {
@@ -452,4 +454,35 @@ function toggleLang() {
 function toggleBranchMenu() {
   // branch switcher
 }
+
+function handleGlobalKeydown(e: KeyboardEvent) {
+  if (e.key === 'F1') {
+    e.preventDefault();
+    router.push('/bill/new');
+  } else if (e.key === 'F2') {
+    e.preventDefault();
+    toggleLang();
+  } else if (e.key === 'F7') {
+    e.preventDefault();
+    router.push('/stock');
+  } else if (e.key === 'F9') {
+    e.preventDefault();
+    router.push('/cash');
+  } else if (e.key === 'F10') {
+    e.preventDefault();
+    router.push('/gst');
+  } else if (e.key === 'F12') {
+    e.preventDefault();
+    router.push('/settings');
+  }
+}
+
+onMounted(() => {
+  OfflineSyncService.init();
+  window.addEventListener('keydown', handleGlobalKeydown);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleGlobalKeydown);
+});
 </script>
