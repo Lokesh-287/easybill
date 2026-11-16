@@ -4,6 +4,8 @@ import BillingView from './pages/sales/BillingView.vue';
 import SalesListView from './pages/sales/SalesListView.vue';
 import ItemsListView from './pages/items/ItemsListView.vue';
 import PartiesListView from './pages/parties/PartiesListView.vue';
+import PurchaseListView from './pages/purchase/PurchaseListView.vue';
+import PurchaseBillForm from './pages/purchase/PurchaseBillForm.vue';
 
 const routes = [
   {
@@ -15,7 +17,9 @@ const routes = [
       { path: 'sales', component: SalesListView },
       { path: 'items', component: ItemsListView },
       { path: 'parties', component: PartiesListView },
-      { path: 'purchase', component: { template: '<div class="p-6"><h1 class="text-2xl font-bold">SCR-F1: Purchases</h1></div>' } },
+      { path: 'purchase', component: PurchaseListView },
+      { path: 'purchase/new', component: PurchaseBillForm },
+      { path: 'purchase/:id', component: PurchaseBillForm },
       { path: 'stock', component: { template: '<div class="p-6"><h1 class="text-2xl font-bold">SCR-G1: Stock Summary</h1></div>' } },
       { path: 'cash', component: { template: '<div class="p-6"><h1 class="text-2xl font-bold">SCR-I1: Day Book</h1></div>' } },
       { path: 'gst', component: { template: '<div class="p-6"><h1 class="text-2xl font-bold">SCR-K1: GST Dashboard</h1></div>' } },
