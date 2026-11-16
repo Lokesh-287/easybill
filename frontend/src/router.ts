@@ -7,6 +7,7 @@ import PartiesListView from './pages/parties/PartiesListView.vue';
 import PurchaseListView from './pages/purchase/PurchaseListView.vue';
 import PurchaseBillForm from './pages/purchase/PurchaseBillForm.vue';
 import StockSummaryView from './pages/stock/StockSummaryView.vue';
+import DayBookView from './pages/cash/DayBookView.vue';
 
 const routes = [
   {
@@ -22,7 +23,7 @@ const routes = [
       { path: 'purchase/new', component: PurchaseBillForm },
       { path: 'purchase/:id', component: PurchaseBillForm },
       { path: 'stock', component: StockSummaryView },
-      { path: 'cash', component: { template: '<div class="p-6"><h1 class="text-2xl font-bold">SCR-I1: Day Book</h1></div>' } },
+      { path: 'cash', component: DayBookView },
       { path: 'gst', component: { template: '<div class="p-6"><h1 class="text-2xl font-bold">SCR-K1: GST Dashboard</h1></div>' } },
       { path: 'reports', component: { template: '<div class="p-6"><h1 class="text-2xl font-bold">SCR-J1: Reports & Analytics</h1></div>' } },
       { path: 'settings', component: { template: '<div class="p-6"><h1 class="text-2xl font-bold">SCR-B2: Settings</h1></div>' } },
