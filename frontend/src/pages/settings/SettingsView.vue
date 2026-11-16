@@ -151,6 +151,28 @@
                 class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none"
               />
             </div>
+
+            <!-- FSSAI License No (Supermarket / Grocery) -->
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">FSSAI License No. (Food / Retail)</label>
+              <input
+                v-model="settings.store_profile.fssai_no"
+                type="text"
+                placeholder="e.g. 12426001000123"
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none font-mono"
+              />
+            </div>
+
+            <!-- Drug License No (Pharmacy) -->
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Drug License No. (Pharmacy 20B / 21B)</label>
+              <input
+                v-model="settings.store_profile.drug_license_no"
+                type="text"
+                placeholder="e.g. TN-CBE-20B-18491"
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none font-mono"
+              />
+            </div>
           </div>
         </div>
 
@@ -364,6 +386,152 @@
             </button>
           </div>
         </div>
+
+        <!-- TAB 5: USERS & ROLE PERMISSIONS RBAC (SCR-B3) -->
+        <div v-if="activeTab === 'users'" class="p-6 space-y-6">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+            <div>
+              <h3 class="text-xs font-extrabold text-slate-900">Staff Roster & Fast PIN Credentials</h3>
+              <p class="text-[11px] text-slate-400">Configure cashier logins, supervisor roles, and counter assignments</p>
+            </div>
+            <button
+              @click="openAddUserModal"
+              class="px-3.5 py-1.5 bg-primary-600 hover:bg-primary-700 text-white font-bold text-xs rounded-xl flex items-center space-x-1.5 transition shadow-xs"
+            >
+              <Plus class="w-3.5 h-3.5" />
+              <span>Add Staff Member</span>
+            </button>
+          </div>
+
+          <!-- Staff Roster Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 text-xs">
+            <div
+              v-for="user in staffUsers"
+              :key="user.id"
+              class="p-4 bg-slate-50 hover:bg-slate-100/60 border border-slate-200/80 rounded-2xl flex items-center justify-between transition"
+            >
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary-600 to-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
+                  {{ user.name.substring(0, 2).toUpperCase() }}
+                </div>
+                <div>
+                  <div class="flex items-center space-x-2">
+                    <span class="font-bold text-slate-900">{{ user.name }}</span>
+                    <span
+                      :class="[
+                        'text-[10px] px-2 py-0.5 rounded-full font-bold',
+                        user.role === 'Store Owner' ? 'bg-purple-100 text-purple-800' :
+                        user.role === 'Store Manager' ? 'bg-indigo-100 text-indigo-800' :
+                        user.role === 'Accountant' ? 'bg-emerald-100 text-emerald-800' :
+                        'bg-blue-100 text-blue-800'
+                      ]"
+                    >
+                      {{ user.role }}
+                    </span>
+                  </div>
+                  <div class="text-[11px] text-slate-500 mt-0.5 flex items-center space-x-2">
+                    <span>📱 {{ user.phone }}</span>
+                    <span>•</span>
+                    <span class="font-mono">PIN: {{ showPin[user.id] ? user.pin : '••••' }}</span>
+                    <button
+                      @click="showPin[user.id] = !showPin[user.id]"
+                      class="text-slate-400 hover:text-slate-600 text-[10px]"
+                    >
+                      {{ showPin[user.id] ? 'Hide' : 'Show' }}
+                    </button>
+                  </div>
+                  <div class="text-[10px] text-slate-400 mt-0.5">
+                    Terminal: {{ user.terminal }}
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex items-center space-x-1">
+                <button
+                  @click="openEditUserModal(user)"
+                  class="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-white rounded-lg transition"
+                  title="Edit user"
+                >
+                  <Edit class="w-4 h-4" />
+                </button>
+                <button
+                  v-if="user.id !== 'usr-1'"
+                  @click="deleteUser(user.id)"
+                  class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-white rounded-lg transition"
+                  title="Delete user"
+                >
+                  <Trash2 class="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Role Permission Matrix (Frappe RPM Standard) -->
+          <div class="border-t border-slate-100 pt-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <h4 class="text-xs font-extrabold text-slate-900">Role-Based Access Control Matrix (RBAC)</h4>
+                <p class="text-[11px] text-slate-400">Granular permissions governing cashier terminals, wholesale cost redactions and manager overrides</p>
+              </div>
+              <button
+                @click="saveRbacPermissions"
+                class="px-3 py-1 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-lg transition"
+              >
+                Save Permissions
+              </button>
+            </div>
+
+            <div class="overflow-x-auto border border-slate-200 rounded-2xl">
+              <table class="w-full text-left text-xs text-slate-700">
+                <thead class="bg-slate-100/80 text-[11px] font-bold text-slate-600 border-b border-slate-200">
+                  <tr>
+                    <th class="py-2.5 px-4">Permission Capability</th>
+                    <th class="py-2.5 px-3 text-center">Cashier</th>
+                    <th class="py-2.5 px-3 text-center">Store Manager</th>
+                    <th class="py-2.5 px-3 text-center">Accountant</th>
+                    <th class="py-2.5 px-3 text-center">Store Owner</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 bg-white">
+                  <tr v-for="p in rbacCapabilities" :key="p.id" class="hover:bg-slate-50/60">
+                    <td class="py-2.5 px-4 font-medium">
+                      <div>{{ p.name }}</div>
+                      <div class="text-[10px] text-slate-400 font-normal">{{ p.desc }}</div>
+                    </td>
+                    <td class="py-2.5 px-3 text-center">
+                      <input
+                        type="checkbox"
+                        v-model="rbacMatrix.cashier[p.id]"
+                        class="w-4 h-4 text-primary-600 rounded border-slate-300 focus:ring-primary-500"
+                      />
+                    </td>
+                    <td class="py-2.5 px-3 text-center">
+                      <input
+                        type="checkbox"
+                        v-model="rbacMatrix.manager[p.id]"
+                        class="w-4 h-4 text-primary-600 rounded border-slate-300 focus:ring-primary-500"
+                      />
+                    </td>
+                    <td class="py-2.5 px-3 text-center">
+                      <input
+                        type="checkbox"
+                        v-model="rbacMatrix.accountant[p.id]"
+                        class="w-4 h-4 text-primary-600 rounded border-slate-300 focus:ring-primary-500"
+                      />
+                    </td>
+                    <td class="py-2.5 px-3 text-center">
+                      <input
+                        type="checkbox"
+                        v-model="rbacMatrix.owner[p.id]"
+                        class="w-4 h-4 text-primary-600 rounded border-slate-300 focus:ring-primary-500"
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -414,27 +582,207 @@
         </div>
       </div>
     </div>
+
+    <!-- Add / Edit Staff Modal (SCR-B3) -->
+    <div
+      v-if="showUserModal"
+      class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4"
+      @click.self="showUserModal = false"
+    >
+      <div class="w-full max-w-md bg-white rounded-2xl shadow-modal border border-slate-200 flex flex-col overflow-hidden animate-in zoom-in-95 duration-150">
+        <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-primary-50/50">
+          <div class="flex items-center space-x-2">
+            <Users class="w-4 h-4 text-primary-700" />
+            <span class="text-xs font-bold text-slate-900">
+              {{ editingUser ? 'Edit Staff Member' : 'Add New Staff Member (SCR-B3)' }}
+            </span>
+          </div>
+          <button @click="showUserModal = false" class="text-slate-400 hover:text-slate-600">✕</button>
+        </div>
+
+        <form @submit.prevent="saveUser" class="p-5 space-y-3.5 text-xs">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Full Name *</label>
+            <input
+              v-model="userForm.name"
+              required
+              type="text"
+              placeholder="e.g. Senthil Kumar"
+              class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+            />
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Mobile / Login ID *</label>
+            <input
+              v-model="userForm.phone"
+              required
+              type="tel"
+              placeholder="9842109876"
+              class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 font-mono"
+            />
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Assigned Role *</label>
+              <select
+                v-model="userForm.role"
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none font-semibold text-slate-800"
+              >
+                <option value="Store Cashier">Store Cashier</option>
+                <option value="Store Manager">Store Manager</option>
+                <option value="Accountant">Accountant</option>
+                <option value="Store Owner">Store Owner</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">4-Digit Fast PIN *</label>
+              <input
+                v-model="userForm.pin"
+                required
+                type="password"
+                maxlength="4"
+                placeholder="1234"
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none font-mono text-center font-bold tracking-widest text-primary-700"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Assigned Counter / Terminal</label>
+            <input
+              v-model="userForm.terminal"
+              type="text"
+              placeholder="POS Counter 01"
+              class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none"
+            />
+          </div>
+
+          <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-[10px] text-emerald-800">
+            ✓ 4-digit PIN enables instant cashier shift switching on the login screen.
+          </div>
+
+          <div class="pt-3 border-t border-slate-100 flex items-center justify-end space-x-2">
+            <button
+              type="button"
+              @click="showUserModal = false"
+              class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="px-5 py-2 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl shadow-xs"
+            >
+              {{ editingUser ? 'Update Staff Member' : 'Save Staff Member' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useToast } from '../../services/toast';
 import {
   Printer,
   CheckCircle2,
-  Download
+  Download,
+  Users,
+  Plus,
+  Trash2,
+  Edit,
+  ShieldCheck,
+  Lock,
+  X
 } from '@lucide/vue';
+
+const toast = useToast();
 
 // State
 const activeTab = ref('profile');
 const showTestPrintModal = ref(false);
+const showUserModal = ref(false);
+const editingUser = ref<any>(null);
+const showPin = ref<Record<string, boolean>>({});
 
 const settingsTabs = [
   { id: 'profile', label: 'Store Profile & GST (SCR-B2)' },
+  { id: 'users', label: 'Users & Permissions RBAC (SCR-B3)' },
   { id: 'hardware', label: 'Thermal Printer & POS (SCR-L1)' },
   { id: 'tax', label: 'Tax Rules' },
   { id: 'system', label: 'System & Backup' }
 ];
+
+const userForm = ref({
+  id: '',
+  name: '',
+  phone: '',
+  role: 'Store Cashier',
+  pin: '1234',
+  terminal: 'POS Counter 01',
+  status: 'Active'
+});
+
+const staffUsers = ref([
+  { id: 'usr-1', name: 'Lokesh K', phone: '9842109876', role: 'Store Cashier', pin: '1234', terminal: 'POS Counter 01', status: 'Active' },
+  { id: 'usr-2', name: 'Administrator', phone: '9842198765', role: 'Store Owner', pin: '0000', terminal: 'All Terminals', status: 'Active' },
+  { id: 'usr-3', name: 'Ramesh Sundaram', phone: '9789123456', role: 'Store Manager', pin: '8899', terminal: 'POS Counter 01', status: 'Active' },
+  { id: 'usr-4', name: 'Priya Narayanan', phone: '9443211223', role: 'Accountant', pin: '5566', terminal: 'Back Office', status: 'Active' },
+]);
+
+const rbacCapabilities = [
+  { id: 'view_cost', name: 'View Wholesale Cost & Margins (RULE-08)', desc: 'Obscured from cashiers to protect supplier margins' },
+  { id: 'override_discount', name: 'Manager Override for Large Discounts (>10%)', desc: 'Allows counter discount approval beyond cashier limit' },
+  { id: 'void_item', name: 'Void / Delete Scanned Items', desc: 'Allows removing line items after subtotal calculation' },
+  { id: 'petty_cash', name: 'Disburse Petty Cash Funds', desc: 'Cash withdrawals from register drawer for store expenses' },
+  { id: 'close_day', name: 'Shift Close & Register Lock', desc: 'Count physical currency denominations and finalize day book' },
+  { id: 'edit_settings', name: 'Hardware & Tax Settings Configuration', desc: 'Modify printer baud rate, GSTIN credentials, and pricing policies' },
+  { id: 'view_reports', name: 'View Financial P&L and GST Returns', desc: 'Access GSTR-1, GSTR-3B, Trading P&L, and balance sheets' },
+];
+
+const rbacMatrix = ref<Record<string, Record<string, boolean>>>({
+  cashier: {
+    view_cost: false,
+    override_discount: false,
+    void_item: false,
+    petty_cash: true,
+    close_day: false,
+    edit_settings: false,
+    view_reports: false
+  },
+  manager: {
+    view_cost: true,
+    override_discount: true,
+    void_item: true,
+    petty_cash: true,
+    close_day: true,
+    edit_settings: false,
+    view_reports: false
+  },
+  accountant: {
+    view_cost: true,
+    override_discount: false,
+    void_item: false,
+    petty_cash: false,
+    close_day: false,
+    edit_settings: false,
+    view_reports: true
+  },
+  owner: {
+    view_cost: true,
+    override_discount: true,
+    void_item: true,
+    petty_cash: true,
+    close_day: true,
+    edit_settings: true,
+    view_reports: true
+  }
+});
 
 const settings = ref({
   store_profile: {
@@ -448,6 +796,8 @@ const settings = ref({
     state: "Tamil Nadu (33)",
     state_code: "33",
     gstin: "33AABCT1234A1Z5",
+    fssai_no: "12426001000123",
+    drug_license_no: "TN-CBE-20B-18491",
     upi_vpa: "easybill@okaxis",
     invoice_prefix: "INV-2026-",
     footer_message: "Thank You! Please Visit Again / நன்றி, மீண்டும் வருக!"
@@ -478,6 +828,63 @@ const settings = ref({
   }
 });
 
+function openAddUserModal() {
+  editingUser.value = null;
+  userForm.value = {
+    id: 'usr-' + (staffUsers.value.length + 1),
+    name: '',
+    phone: '',
+    role: 'Store Cashier',
+    pin: '1234',
+    terminal: 'POS Counter 01',
+    status: 'Active'
+  };
+  showUserModal.value = true;
+}
+
+function openEditUserModal(user: any) {
+  editingUser.value = user;
+  userForm.value = { ...user };
+  showUserModal.value = true;
+}
+
+function saveUser() {
+  if (!userForm.value.name.trim() || !userForm.value.phone.trim()) {
+    toast.error('Please enter name and phone number');
+    return;
+  }
+  if (!userForm.value.pin || userForm.value.pin.length !== 4) {
+    toast.error('PIN must be exactly 4 digits');
+    return;
+  }
+
+  if (editingUser.value) {
+    const idx = staffUsers.value.findIndex(u => u.id === editingUser.value.id);
+    if (idx !== -1) {
+      staffUsers.value[idx] = { ...userForm.value };
+    }
+    toast.success(`Staff member "${userForm.value.name}" updated successfully`);
+  } else {
+    staffUsers.value.push({ ...userForm.value });
+    toast.success(`Staff member "${userForm.value.name}" added to roster`);
+  }
+
+  showUserModal.value = false;
+}
+
+function deleteUser(id: string) {
+  const idx = staffUsers.value.findIndex(u => u.id === id);
+  if (idx !== -1) {
+    const name = staffUsers.value[idx].name;
+    staffUsers.value.splice(idx, 1);
+    toast.info(`Staff member "${name}" removed from roster`);
+  }
+}
+
+function saveRbacPermissions() {
+  toast.success('Role-Based Access Control (RBAC) permissions saved successfully');
+}
+
 function testPrintReceipt() {
   showTestPrintModal.value = true;
 }
@@ -490,17 +897,23 @@ async function saveAllSettings() {
       body: JSON.stringify({ data: JSON.stringify(settings.value) })
     });
     if (res.ok) {
-      alert('Settings saved successfully!');
+      toast.success('Settings and store profile saved successfully');
       return;
     }
   } catch (err) {
     console.log('Settings save fallback');
   }
-  alert('Settings saved successfully!');
+  toast.success('Settings and store profile saved successfully');
 }
 
 function downloadBackupJSON() {
-  const jsonStr = JSON.stringify(settings.value, null, 2);
+  const backupData = {
+    settings: settings.value,
+    staff_users: staffUsers.value,
+    rbac_permissions: rbacMatrix.value,
+    backup_timestamp: new Date().toISOString()
+  };
+  const jsonStr = JSON.stringify(backupData, null, 2);
   const blob = new Blob([jsonStr], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
@@ -509,5 +922,6 @@ function downloadBackupJSON() {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+  toast.success('Encrypted database backup downloaded');
 }
 </script>

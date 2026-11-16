@@ -430,6 +430,14 @@
         <!-- Drawer Footer Actions -->
         <div class="p-4 border-t border-slate-100 bg-white flex items-center space-x-2">
           <button
+            @click="openSalesReturnModal(selectedInvoice)"
+            class="py-2.5 px-3 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs rounded-xl border border-rose-200 flex items-center justify-center space-x-1.5 transition"
+            title="Sales Return & Credit Note"
+          >
+            <RotateCcw class="w-3.5 h-3.5" />
+            <span>Return (SCR-E6)</span>
+          </button>
+          <button
             @click="shareWhatsApp(selectedInvoice)"
             class="flex-1 py-2.5 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold text-xs rounded-xl border border-emerald-200 flex items-center justify-center space-x-1.5 transition"
           >
@@ -446,11 +454,95 @@
         </div>
       </div>
     </div>
+
+    <!-- MODAL: Sales Return / Credit Note (SCR-E6) -->
+    <div
+      v-if="showReturnModal && returnTargetInvoice"
+      class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4"
+      @click.self="showReturnModal = false"
+    >
+      <div class="w-full max-w-md bg-white rounded-2xl shadow-modal border border-slate-200 flex flex-col overflow-hidden animate-in zoom-in-95 duration-150">
+        <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-rose-50/50">
+          <div class="flex items-center space-x-2">
+            <RotateCcw class="w-4 h-4 text-rose-600" />
+            <div>
+              <div class="text-xs font-bold text-slate-900">Sales Return & Credit Note (SCR-E6)</div>
+              <div class="text-[10px] text-slate-500 font-mono">{{ returnTargetInvoice.number }} • {{ returnTargetInvoice.customerName }}</div>
+            </div>
+          </div>
+          <button @click="showReturnModal = false" class="text-slate-400 hover:text-slate-600">✕</button>
+        </div>
+
+        <div class="p-5 space-y-3.5 text-xs">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1.5">Return Reason</label>
+            <select
+              v-model="returnForm.reason"
+              class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none"
+            >
+              <option value="Customer Exchange">Customer Size / Item Exchange</option>
+              <option value="Defective / Quality Issue">Defective / Damaged / Expired</option>
+              <option value="Excess Quantity Purchased">Excess Quantity Purchased</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1.5">Refund / Settlement Mode</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                @click="returnForm.refund_mode = 'Credit Note'"
+                :class="[
+                  'py-2 px-3 text-center rounded-xl font-bold border transition text-xs',
+                  returnForm.refund_mode === 'Credit Note'
+                    ? 'bg-rose-600 text-white border-rose-600 shadow-sm'
+                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                ]"
+              >
+                Khata Credit Note
+              </button>
+              <button
+                type="button"
+                @click="returnForm.refund_mode = 'Cash from Drawer'"
+                :class="[
+                  'py-2 px-3 text-center rounded-xl font-bold border transition text-xs',
+                  returnForm.refund_mode === 'Cash from Drawer'
+                    ? 'bg-primary-600 text-white border-primary-600 shadow-sm'
+                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                ]"
+              >
+                Cash from Drawer
+              </button>
+            </div>
+          </div>
+
+          <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-[10px] text-emerald-800">
+            ✓ Returned items will be restored to Counter Inventory bin and Credit Note registered.
+          </div>
+        </div>
+
+        <div class="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-end space-x-2">
+          <button
+            @click="showReturnModal = false"
+            class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-xl text-xs"
+          >
+            Cancel
+          </button>
+          <button
+            @click="confirmSalesReturn"
+            class="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs shadow-xs"
+          >
+            Confirm Return & Issue Credit Note
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { useToast } from '../../services/toast';
 import {
   Plus,
   Search,
@@ -463,6 +555,7 @@ import {
   Printer,
   Share2,
   ArrowRight,
+  RotateCcw,
   X
 } from '@lucide/vue';
 
@@ -491,10 +584,19 @@ interface Invoice {
 }
 
 // State
+const toast = useToast();
 const searchQuery = ref('');
 const activeDateFilter = ref('all');
 const activeStatusTab = ref('all');
 const selectedInvoice = ref<Invoice | null>(null);
+
+// Sales Return & Credit Note Modal (SCR-E6)
+const showReturnModal = ref(false);
+const returnTargetInvoice = ref<Invoice | null>(null);
+const returnForm = ref({
+  reason: 'Customer Exchange',
+  refund_mode: 'Credit Note'
+});
 
 // Status Tabs
 const statusTabs = ref([
@@ -657,13 +759,28 @@ function openInvoiceDrawer(inv: Invoice) {
   selectedInvoice.value = inv;
 }
 
+function openSalesReturnModal(inv: Invoice) {
+  returnTargetInvoice.value = inv;
+  showReturnModal.value = true;
+}
+
+function confirmSalesReturn() {
+  if (!returnTargetInvoice.value) return;
+  const inv = returnTargetInvoice.value;
+  inv.status = 'Returned';
+  showReturnModal.value = false;
+  selectedInvoice.value = null;
+  toast.success(`Sales Return Processed: Credit Note issued for ${inv.number}. Stock restored to Counter.`);
+}
+
 function reprintBill(inv: Invoice) {
-  alert(`Printing 80mm thermal receipt for ${inv.number}...`);
+  toast.success(`Printing 80mm thermal receipt for ${inv.number}...`);
 }
 
 function shareWhatsApp(inv: Invoice) {
   const text = `Hello ${inv.customerName}, your invoice #${inv.number} for ₹${formatMoney(inv.grandTotal)} from EasyBill Store is ready.`;
   window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+  toast.info('Opening WhatsApp link...');
 }
 
 function exportToCSV() {
@@ -677,6 +794,7 @@ function exportToCSV() {
   a.href = url;
   a.download = `EasyBill_Invoices_${new Date().toISOString().slice(0, 10)}.csv`;
   a.click();
+  toast.success('Invoices CSV exported successfully');
 }
 
 function getInitials(name: string): string {

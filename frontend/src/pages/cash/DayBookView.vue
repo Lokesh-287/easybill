@@ -505,6 +505,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
+import { useToast } from '../../services/toast';
 import {
   Banknote,
   ArrowDownLeft,
@@ -516,6 +517,8 @@ import {
   Lock,
   CheckCircle2
 } from '@lucide/vue';
+
+const toast = useToast();
 
 interface CashTransaction {
   id: string;
@@ -660,7 +663,7 @@ function openCloseModal() {
 
 async function submitExpense() {
   if (expenseForm.value.amount <= 0) {
-    alert('Please enter a valid expense amount');
+    toast.error('Invalid Amount', 'Please enter a valid expense amount');
     return;
   }
 
@@ -681,6 +684,7 @@ async function submitExpense() {
       if (data.message && data.message.data) {
         dayBook.value = data.message.data.day_book;
         showExpenseModal.value = false;
+        toast.success('Expense Recorded', `₹${formatMoney(expenseForm.value.amount)} paid for ${expenseForm.value.category}`);
         return;
       }
     }
@@ -707,6 +711,7 @@ async function submitExpense() {
   });
 
   showExpenseModal.value = false;
+  toast.success('Expense Recorded', `₹${formatMoney(amount)} logged in Day Book`);
 }
 
 async function submitDayClose() {
@@ -724,6 +729,7 @@ async function submitDayClose() {
       dayBook.value.counted_cash = totalCountedCash.value;
       dayBook.value.variance = countedVariance.value;
       showCloseModal.value = false;
+      toast.success('Day Closed', 'Register closed and drawer locked successfully');
       return;
     }
   } catch (err) {
@@ -734,6 +740,7 @@ async function submitDayClose() {
   dayBook.value.counted_cash = totalCountedCash.value;
   dayBook.value.variance = countedVariance.value;
   showCloseModal.value = false;
+  toast.success('Day Closed', 'Register closed and drawer locked successfully');
 }
 
 function exportDayBookCSV() {

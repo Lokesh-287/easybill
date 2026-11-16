@@ -345,17 +345,23 @@
           </div>
         </div>
 
-        <!-- Center: Universal Search Input -->
-        <div class="hidden md:flex items-center w-80 lg:w-96 relative">
-          <Search class="w-4 h-4 absolute left-3.5 text-slate-400 pointer-events-none" />
+        <!-- Center: Universal Search Input (Triggers Awesomebar) -->
+        <div
+          @click="openAwesomebar"
+          class="hidden md:flex items-center w-80 lg:w-96 relative cursor-pointer group"
+        >
+          <Search class="w-4 h-4 absolute left-3.5 text-slate-400 group-hover:text-primary-600 transition" />
           <input
             type="text"
-            placeholder="Search invoices, clients, items (F1)..."
-            class="w-full pl-10 pr-14 py-2 bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition shadow-2xs"
+            readonly
+            placeholder="Search screens, actions, items, customers (Ctrl+K)..."
+            class="w-full pl-10 pr-16 py-2 bg-slate-50 group-hover:bg-slate-100/80 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 placeholder-slate-400 cursor-pointer focus:outline-none transition shadow-2xs"
           />
-          <kbd class="absolute right-3 px-1.5 py-0.5 text-[10px] bg-white border border-slate-200 text-slate-500 rounded font-mono shadow-2xs">
-            F1
-          </kbd>
+          <div class="absolute right-3 flex items-center space-x-1">
+            <kbd class="px-1.5 py-0.5 text-[9px] bg-white border border-slate-200 text-slate-500 rounded font-mono shadow-2xs">
+              Ctrl+K
+            </kbd>
+          </div>
         </div>
 
         <!-- Right: Actions, Badges & Toggles -->
@@ -404,6 +410,9 @@
       <main class="flex-1 overflow-hidden relative">
         <router-view />
       </main>
+
+      <!-- Global Awesomebar Command Palette (Ctrl+K) -->
+      <Awesomebar ref="awesomebarRef" />
     </div>
   </div>
 </template>
@@ -412,6 +421,7 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { OfflineSyncService } from '../services/offlineSync';
+import Awesomebar from '../components/Awesomebar.vue';
 import {
   Receipt,
   FileText,
@@ -433,6 +443,11 @@ import {
 const route = useRoute();
 const router = useRouter();
 const currentLang = ref<'en' | 'ta'>('en');
+const awesomebarRef = ref<any>(null);
+
+function openAwesomebar() {
+  awesomebarRef.value?.open();
+}
 
 const currentScreenTitle = computed(() => {
   if (route.path.startsWith('/items')) return 'Items Catalog & Inventory (SCR-C1)';
@@ -456,7 +471,10 @@ function toggleBranchMenu() {
 }
 
 function handleGlobalKeydown(e: KeyboardEvent) {
-  if (e.key === 'F1') {
+  if (e.key === 'F1' || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k')) {
+    e.preventDefault();
+    openAwesomebar();
+  } else if (e.key === 'F8') {
     e.preventDefault();
     router.push('/bill/new');
   } else if (e.key === 'F2') {

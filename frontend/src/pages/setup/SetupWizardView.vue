@@ -198,9 +198,11 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useToast } from '../../services/toast';
 import { Check, CheckCircle2, ArrowRight } from '@lucide/vue';
 
 const router = useRouter();
+const toast = useToast();
 const step = ref(1);
 
 const wizard = ref({
@@ -216,18 +218,18 @@ const wizard = ref({
 function nextStep() {
   if (step.value === 1) {
     if (!wizard.value.store_name.trim()) {
-      alert('Please enter your Store / Business Name');
+      toast.error('Store Name Required', 'Please enter your Store / Business Name');
       return;
     }
     const cleanPhone = (wizard.value.phone || '').replace(/\D/g, '');
     if (cleanPhone.length !== 10) {
-      alert('Please enter a valid 10-digit contact phone number');
+      toast.error('Invalid Contact Phone', 'Please enter a valid 10-digit contact phone number');
       return;
     }
   } else if (step.value === 2) {
     const g = (wizard.value.gstin || '').trim();
     if (g && g.length !== 15) {
-      alert('GSTIN must be 15 alphanumeric characters if provided');
+      toast.error('Invalid GSTIN', 'GSTIN must be 15 alphanumeric characters if provided');
       return;
     }
   }

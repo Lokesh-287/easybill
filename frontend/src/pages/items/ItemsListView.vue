@@ -663,6 +663,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { useToast } from '../../services/toast';
 import {
   Package,
   Plus,
@@ -697,6 +698,7 @@ interface ProductItem {
 }
 
 // State
+const toast = useToast();
 const searchQuery = ref('');
 const selectedCategory = ref('All');
 const activeFilterTab = ref('all');
@@ -972,7 +974,7 @@ function openEditProductDrawer(item: ProductItem) {
 
 function saveProduct() {
   if (!formItem.value.name.trim()) {
-    alert('Please enter product name');
+    toast.error('Please enter product name');
     return;
   }
   formItem.value.price = Number(formItem.value.price) || 0;
@@ -980,11 +982,11 @@ function saveProduct() {
   formItem.value.mrp = Number(formItem.value.mrp) || formItem.value.price;
 
   if (formItem.value.price <= 0) {
-    alert('Selling price must be greater than zero');
+    toast.error('Selling price must be greater than zero');
     return;
   }
   if (!formItem.value.hsn.trim()) {
-    alert('Please enter a valid HSN code');
+    toast.error('Please enter a valid HSN code');
     return;
   }
 
@@ -993,8 +995,10 @@ function saveProduct() {
     if (idx !== -1) {
       itemsList.value[idx] = { ...formItem.value };
     }
+    toast.success(`Product "${formItem.value.name}" updated successfully`);
   } else {
     itemsList.value.unshift({ ...formItem.value });
+    toast.success(`New product "${formItem.value.name}" created`);
   }
 
   showProductDrawer.value = false;
@@ -1003,11 +1007,13 @@ function saveProduct() {
 function deleteItem(item: ProductItem) {
   if (confirm(`Deactivate product ${item.name}?`)) {
     item.status = 'Inactive';
+    toast.info(`Product "${item.name}" deactivated`);
   }
 }
 
 function generateEan13() {
   formItem.value.barcode = '890' + Math.floor(100000000 + Math.random() * 900000000);
+  toast.info('EAN-13 barcode generated');
 }
 
 function calculateMargin(item: ProductItem): number {
@@ -1021,16 +1027,16 @@ function calculateFormMargin(): number {
 }
 
 function printSingleBarcode(item: ProductItem) {
-  alert(`Printing barcode label for ${item.name} (${item.barcode})...`);
+  toast.success(`Sent barcode label for ${item.name} (${item.barcode}) to label printer`);
 }
 
 function printLabels() {
-  alert('Sending label sheet to thermal label printer...');
+  toast.success('Sent full label sheet to thermal label printer');
   showLabelModal.value = false;
 }
 
 function triggerImportModal() {
-  alert('Excel & CSV Catalog Importer (SCR-C3): Upload spreadsheet to bulk-import items.');
+  toast.info('Catalog Bulk Importer: Select CSV or Excel inventory spreadsheet to upload');
 }
 
 function formatMoney(amount: number | undefined): string {

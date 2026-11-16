@@ -557,6 +557,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { useToast } from '../../services/toast';
 import {
   ArrowLeft,
   CheckCircle2,
@@ -566,6 +567,7 @@ import {
 } from '@lucide/vue';
 
 const router = useRouter();
+const toast = useToast();
 
 // Master Data
 const suppliers = ref([
@@ -802,7 +804,7 @@ function saveQuickItem() {
 async function savePurchaseBill(inwardStock = true) {
   form.value.supplier_bill_no = (form.value.supplier_bill_no || '').trim().toUpperCase();
   if (!form.value.supplier_bill_no) {
-    alert('Please enter the Supplier Bill Number');
+    toast.error('Please enter the Supplier Bill Number');
     return;
   }
   if (duplicateDetected.value) {
@@ -810,11 +812,11 @@ async function savePurchaseBill(inwardStock = true) {
     return;
   }
   if (form.value.items.some(i => !i.item_code || isNaN(i.qty) || i.qty <= 0 || isNaN(i.rate) || i.rate < 0)) {
-    alert('Please ensure all line items have a valid product selected, quantity > 0, and rate >= 0');
+    toast.error('Please ensure all line items have a valid product selected, quantity > 0, and rate >= 0');
     return;
   }
   if (taxableSubtotal.value <= 0) {
-    alert('Total bill amount must be greater than zero');
+    toast.error('Total bill amount must be greater than zero');
     return;
   }
 
@@ -841,6 +843,7 @@ async function savePurchaseBill(inwardStock = true) {
     if (res.ok) {
       const data = await res.json();
       if (data.message && data.message.ok) {
+        toast.success(`Purchase Bill ${form.value.supplier_bill_no} saved and stock inwarded`);
         router.push('/purchase');
         return;
       }
@@ -849,7 +852,7 @@ async function savePurchaseBill(inwardStock = true) {
     console.error('API create_purchase_bill failed:', err);
   }
 
-  // If local fallback or router
+  toast.success(`Purchase Bill ${form.value.supplier_bill_no} saved successfully`);
   router.push('/purchase');
 }
 </script>

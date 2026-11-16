@@ -621,10 +621,21 @@
           </button>
         </div>
 
+        <!-- Real-time Customer Search Input (Frappe Pattern) -->
+        <div class="relative my-2.5">
+          <Search class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input
+            v-model="customerSearchQuery"
+            type="text"
+            placeholder="Search customer by name or phone (e.g. Priya, 98421)..."
+            class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 font-medium transition"
+          />
+        </div>
+
         <!-- Customer List -->
-        <div class="py-3 space-y-1.5 max-h-60 overflow-y-auto">
+        <div class="py-1 space-y-1.5 max-h-60 overflow-y-auto">
           <div
-            v-for="c in customersList"
+            v-for="c in filteredCustomersList"
             :key="c.id"
             @click="selectCustomer(c)"
             class="p-2.5 rounded-xl border border-slate-200 hover:border-primary-500 hover:bg-primary-50/60 cursor-pointer transition flex items-center justify-between"
@@ -643,6 +654,9 @@
                 ₹{{ formatMoney(c.balance) }}
               </span>
             </div>
+          </div>
+          <div v-if="filteredCustomersList.length === 0" class="text-center py-6 text-xs text-slate-400">
+            No customers match "{{ customerSearchQuery }}"
           </div>
         </div>
       </div>
@@ -830,6 +844,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { useToast } from '../../services/toast';
 import {
   Search,
   Plus,
@@ -880,6 +895,9 @@ const showCustomerModal = ref(false);
 const showQuickAddModal = ref(false);
 const showHeldBillsModal = ref(false);
 
+const toast = useToast();
+const customerSearchQuery = ref('');
+
 // Active Customer
 const currentCustomer = ref({
   id: 'walk-in',
@@ -893,7 +911,16 @@ const customersList = ref([
   { id: 'c2', name: 'Ramesh Kumar (Retail)', phone: '9842109876', balance: 0 },
   { id: 'c3', name: 'Priya Traders', phone: '9443211223', balance: 450.00 },
   { id: 'c4', name: 'Kumar Medicals', phone: '9789123456', balance: 1200.00 },
+  { id: 'c5', name: 'Murugan Department Stores', phone: '9842233445', balance: 1850.00 },
 ]);
+
+const filteredCustomersList = computed(() => {
+  const q = customerSearchQuery.value.trim().toLowerCase();
+  if (!q) return customersList.value;
+  return customersList.value.filter(c =>
+    c.name.toLowerCase().includes(q) || c.phone.includes(q)
+  );
+});
 
 // Categories
 const categories = ref([
@@ -1155,6 +1182,7 @@ function handleSearchEnter() {
 function selectCustomer(cust: any) {
   currentCustomer.value = cust;
   showCustomerModal.value = false;
+  toast.info(`Selected customer: ${cust.name}`);
 }
 
 // Quick Add Item
@@ -1175,6 +1203,7 @@ function saveQuickItem() {
   catalog.value.unshift(created);
   addToCart(created);
   showQuickAddModal.value = false;
+  toast.success(`Item "${created.name}" added to catalog & cart`);
 
   // reset form
   newItem.value = {
@@ -1200,6 +1229,7 @@ function holdCurrentBill() {
   });
   cart.value = [];
   cashReceived.value = 0;
+  toast.info(`Bill held for ${currentCustomer.value.name} (F9)`);
 }
 
 function resumeHeldBill(idx: number) {
@@ -1207,6 +1237,7 @@ function resumeHeldBill(idx: number) {
   cart.value = held.items;
   currentCustomer.value.name = held.customer;
   showHeldBillsModal.value = false;
+  toast.success(`Resumed bill for ${held.customer}`);
 }
 
 // Complete Bill & Print (F8)
@@ -1218,6 +1249,17 @@ function completeAndPrintBill() {
     const shortfall = roundedGrandTotal.value - (cashReceived.value || 0);
     if (!confirm(`Cash received (₹${formatMoney(cashReceived.value)}) is short by ₹${formatMoney(shortfall)}. Proceed with short tender?`)) {
       return;
+    }
+  }
+
+  // Khata Credit Limit Guard
+  if (selectedPaymentMode.value === 'credit') {
+    const limit = 25000;
+    if (currentCustomer.value.balance + roundedGrandTotal.value > limit) {
+      const overage = currentCustomer.value.balance + roundedGrandTotal.value - limit;
+      if (!confirm(`Warning: Customer credit limit (₹${formatMoney(limit)}) will be exceeded by ₹${formatMoney(overage)}. Proceed with manager approval?`)) {
+        return;
+      }
     }
   }
 
@@ -1236,6 +1278,7 @@ function completeAndPrintBill() {
   showReceiptModal.value = true;
   cart.value = [];
   cashReceived.value = 0;
+  toast.success(`Bill #${billNo} for ₹${formatMoney(lastBill.value.total)} completed successfully!`);
 }
 
 function triggerPrint() {

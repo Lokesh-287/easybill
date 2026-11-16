@@ -653,6 +653,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { useToast } from '../../services/toast';
 import {
   Users,
   Building2,
@@ -686,6 +687,7 @@ interface Party {
 }
 
 // State
+const toast = useToast();
 const searchQuery = ref('');
 const selectedCity = ref('All');
 const activePartyTab = ref('all');
@@ -920,12 +922,12 @@ function openPartyDetailDrawer(party: Party) {
 
 function saveParty() {
   if (!formParty.value.name.trim()) {
-    alert('Please enter party name');
+    toast.error('Please enter party name');
     return;
   }
   const cleanPhone = (formParty.value.phone || '').replace(/\D/g, '');
   if (cleanPhone.length !== 10) {
-    alert('Please enter a valid 10-digit mobile number');
+    toast.error('Please enter a valid 10-digit mobile number');
     return;
   }
   formParty.value.phone = cleanPhone;
@@ -935,7 +937,7 @@ function saveParty() {
   if (gstin) {
     const gstinPattern = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
     if (!gstinPattern.test(gstin)) {
-      alert('Invalid GSTIN format. Expected 15 characters (e.g. 33AAAAA0000A1Z5)');
+      toast.error('Invalid GSTIN format. Expected 15 characters (e.g. 33AAAAA0000A1Z5)');
       return;
     }
     formParty.value.gstin = gstin;
@@ -950,8 +952,10 @@ function saveParty() {
     if (idx !== -1) {
       partiesList.value[idx] = { ...formParty.value };
     }
+    toast.success(`Party "${formParty.value.name}" updated successfully`);
   } else {
     partiesList.value.unshift({ ...formParty.value });
+    toast.success(`New party "${formParty.value.name}" created`);
   }
 
   showPartyFormDrawer.value = false;

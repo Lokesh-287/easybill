@@ -655,6 +655,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
+import { useToast } from '../../services/toast';
 import {
   ShoppingBag,
   ArrowUpRight,
@@ -714,6 +715,7 @@ interface PurchaseBill {
 }
 
 // State
+const toast = useToast();
 const searchQuery = ref('');
 const selectedSupplier = ref('All');
 const activeStatusTab = ref('all');
@@ -962,7 +964,7 @@ function submitPurchaseReturn() {
   });
 
   if (totalRetQty === 0) {
-    alert('Please enter a return quantity greater than 0 for at least one item');
+    toast.error('Please enter a return quantity greater than 0 for at least one item');
     return;
   }
 
@@ -1001,6 +1003,7 @@ function submitPurchaseReturn() {
   billsList.value.unshift(newReturnBill);
   showReturnModal.value = false;
   showDetailDrawer.value = false;
+  toast.success(`Debit Note RET-${target.supplier_bill_no} recorded and inventory updated`);
 }
 
 function exportPurchasesCSV() {
@@ -1027,6 +1030,7 @@ function exportPurchasesCSV() {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+  toast.success('Purchases register exported to CSV');
 }
 
 // Fetch from API if available
