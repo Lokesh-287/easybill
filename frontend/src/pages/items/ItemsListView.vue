@@ -971,7 +971,22 @@ function openEditProductDrawer(item: ProductItem) {
 }
 
 function saveProduct() {
-  if (!formItem.value.name) return;
+  if (!formItem.value.name.trim()) {
+    alert('Please enter product name');
+    return;
+  }
+  formItem.value.price = Number(formItem.value.price) || 0;
+  formItem.value.cost = Number(formItem.value.cost) || 0;
+  formItem.value.mrp = Number(formItem.value.mrp) || formItem.value.price;
+
+  if (formItem.value.price <= 0) {
+    alert('Selling price must be greater than zero');
+    return;
+  }
+  if (!formItem.value.hsn.trim()) {
+    alert('Please enter a valid HSN code');
+    return;
+  }
 
   if (editingItem.value) {
     const idx = itemsList.value.findIndex(i => i.code === editingItem.value!.code);

@@ -919,7 +919,31 @@ function openPartyDetailDrawer(party: Party) {
 }
 
 function saveParty() {
-  if (!formParty.value.name || !formParty.value.phone) return;
+  if (!formParty.value.name.trim()) {
+    alert('Please enter party name');
+    return;
+  }
+  const cleanPhone = (formParty.value.phone || '').replace(/\D/g, '');
+  if (cleanPhone.length !== 10) {
+    alert('Please enter a valid 10-digit mobile number');
+    return;
+  }
+  formParty.value.phone = cleanPhone;
+
+  // Validate GSTIN if entered
+  const gstin = (formParty.value.gstin || '').trim().toUpperCase();
+  if (gstin) {
+    const gstinPattern = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+    if (!gstinPattern.test(gstin)) {
+      alert('Invalid GSTIN format. Expected 15 characters (e.g. 33AAAAA0000A1Z5)');
+      return;
+    }
+    formParty.value.gstin = gstin;
+  }
+
+  // Ensure balance & credit limit are non-NaN numbers
+  formParty.value.balance = Number(formParty.value.balance) || 0;
+  formParty.value.credit_limit = Number(formParty.value.credit_limit) || 0;
 
   if (editingParty.value) {
     const idx = partiesList.value.findIndex(p => p.id === editingParty.value!.id);
@@ -934,7 +958,8 @@ function saveParty() {
 }
 
 function handleGstinInput() {
-  const g = formParty.value.gstin.trim();
+  formParty.value.gstin = (formParty.value.gstin || '').trim().toUpperCase();
+  const g = formParty.value.gstin;
   if (g.length >= 2) {
     const code = g.slice(0, 2);
     if (code === '33') formParty.value.state = 'Tamil Nadu (33)';

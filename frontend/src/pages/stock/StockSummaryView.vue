@@ -401,6 +401,7 @@
               <input
                 v-model.number="adjustForm.actual_qty"
                 type="number"
+                step="any"
                 min="0"
                 class="w-full px-3 py-2 text-sm font-extrabold font-tabular bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
               />
@@ -750,7 +751,7 @@ async function submitStockAdjustment() {
 
   const itm = adjustTargetItem.value;
   const oldQty = itm.qty_on_hand;
-  const newQty = adjustForm.value.actual_qty;
+  const newQty = Math.max(0, Number(adjustForm.value.actual_qty) || 0);
 
   try {
     const payload = {

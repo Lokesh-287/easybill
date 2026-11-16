@@ -174,7 +174,7 @@
 
           <button
             v-if="step < 4"
-            @click="step++"
+            @click="nextStep"
             class="px-5 py-2 bg-primary-600 hover:bg-primary-700 text-white font-bold text-xs rounded-xl shadow-md shadow-primary-500/25 flex items-center space-x-1.5"
           >
             <span>Continue</span>
@@ -212,6 +212,27 @@ const wizard = ref({
   upi_vpa: 'easybill@okaxis',
   printer: 'TVS RP3200 Plus (80mm)'
 });
+
+function nextStep() {
+  if (step.value === 1) {
+    if (!wizard.value.store_name.trim()) {
+      alert('Please enter your Store / Business Name');
+      return;
+    }
+    const cleanPhone = (wizard.value.phone || '').replace(/\D/g, '');
+    if (cleanPhone.length !== 10) {
+      alert('Please enter a valid 10-digit contact phone number');
+      return;
+    }
+  } else if (step.value === 2) {
+    const g = (wizard.value.gstin || '').trim();
+    if (g && g.length !== 15) {
+      alert('GSTIN must be 15 alphanumeric characters if provided');
+      return;
+    }
+  }
+  step.value++;
+}
 
 function finishSetup() {
   router.push('/bill/new');

@@ -800,7 +800,8 @@ function saveQuickItem() {
 }
 
 async function savePurchaseBill(inwardStock = true) {
-  if (!form.value.supplier_bill_no.trim()) {
+  form.value.supplier_bill_no = (form.value.supplier_bill_no || '').trim().toUpperCase();
+  if (!form.value.supplier_bill_no) {
     alert('Please enter the Supplier Bill Number');
     return;
   }
@@ -808,8 +809,12 @@ async function savePurchaseBill(inwardStock = true) {
     showDuplicateModal.value = true;
     return;
   }
-  if (form.value.items.some(i => !i.item_code || i.qty <= 0)) {
-    alert('Please ensure all line items have a valid product selected and quantity > 0');
+  if (form.value.items.some(i => !i.item_code || isNaN(i.qty) || i.qty <= 0 || isNaN(i.rate) || i.rate < 0)) {
+    alert('Please ensure all line items have a valid product selected, quantity > 0, and rate >= 0');
+    return;
+  }
+  if (taxableSubtotal.value <= 0) {
+    alert('Total bill amount must be greater than zero');
     return;
   }
 

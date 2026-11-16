@@ -141,7 +141,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import { Receipt } from '@lucide/vue';
 
@@ -195,4 +195,24 @@ function verifyPin() {
 function submitPassword() {
   router.push('/bill/new');
 }
+
+function handleKeydown(e: KeyboardEvent) {
+  if (authMode.value === 'pin') {
+    if (e.key >= '0' && e.key <= '9') {
+      enterDigit(e.key);
+    } else if (e.key === 'Backspace') {
+      deleteLastDigit();
+    } else if (e.key === 'Escape') {
+      clearPin();
+    }
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', handleKeydown);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleKeydown);
+});
 </script>

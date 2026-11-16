@@ -442,7 +442,7 @@
                   countedVariance > 0 ? 'text-blue-700' : 'text-rose-700'
                 ]"
               >
-                {{ countedVariance > 0 ? '+' : '' }}₹{{ formatMoney(countedVariance) }}
+                {{ countedVariance > 0 ? '+' : countedVariance < 0 ? '-' : '' }}₹{{ formatMoney(countedVariance) }}
               </div>
             </div>
           </div>
@@ -614,7 +614,10 @@ const filterTabs = computed(() => [
 
 const totalCountedCash = computed(() => {
   return denominationPresets.reduce((acc, d) => {
-    return acc + (d.val * (denomCounts.value[d.val] || 0));
+    const raw = denomCounts.value[d.val];
+    const count = typeof raw === 'number' && !isNaN(raw) ? raw : Number(raw);
+    const safeCount = isNaN(count) || count < 0 ? 0 : count;
+    return acc + (d.val * safeCount);
   }, 0);
 });
 

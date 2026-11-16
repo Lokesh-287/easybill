@@ -329,9 +329,11 @@
                 <Minus class="w-3 h-3" />
               </button>
               <input
-                v-model.number="line.qty"
+                :value="line.qty"
                 type="number"
                 min="1"
+                @input="handleQtyInput(line, $event)"
+                @blur="handleQtyBlur(line, $event)"
                 class="w-10 h-6 text-center text-xs font-bold text-slate-900 bg-white border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500 font-tabular"
               />
               <button
@@ -437,11 +439,19 @@
               ₹{{ preset }}
             </button>
           </div>
-          <!-- Change Return Display -->
+          <!-- Change Return / Short Tender Display -->
           <div v-if="cashReceived > roundedGrandTotal" class="pt-1.5 border-t border-slate-100 flex justify-between items-center text-xs">
             <span class="font-semibold text-emerald-700">Change to Return:</span>
             <span class="font-bold text-emerald-700 font-tabular text-sm">
               ₹{{ formatMoney(cashReceived - roundedGrandTotal) }}
+            </span>
+          </div>
+          <div v-else-if="cashReceived > 0 && cashReceived < roundedGrandTotal" class="pt-1.5 border-t border-slate-100 flex justify-between items-center text-xs text-amber-800 bg-amber-50 px-2.5 py-1.5 rounded-lg border border-amber-200">
+            <span class="font-semibold flex items-center space-x-1">
+              <span>⚠️ Short Tender:</span>
+            </span>
+            <span class="font-bold font-tabular text-xs text-amber-900">
+              ₹{{ formatMoney(roundedGrandTotal - cashReceived) }} needed
             </span>
           </div>
         </div>
@@ -1099,6 +1109,29 @@ function updateQty(line: CartItem, delta: number) {
   }
 }
 
+function handleQtyInput(line: CartItem, e: any) {
+  const val = parseInt(e?.target?.value, 10);
+  if (!isNaN(val) && val >= 1) {
+    line.qty = val;
+    if (selectedPaymentMode.value === 'cash') {
+      cashReceived.value = roundedGrandTotal.value;
+    }
+  }
+}
+
+function handleQtyBlur(line: CartItem, e: any) {
+  const val = parseInt(e?.target?.value, 10);
+  if (isNaN(val) || val < 1) {
+    line.qty = 1;
+    if (e?.target) e.target.value = '1';
+  } else {
+    line.qty = val;
+  }
+  if (selectedPaymentMode.value === 'cash') {
+    cashReceived.value = roundedGrandTotal.value;
+  }
+}
+
 function removeFromCart(idx: number) {
   cart.value.splice(idx, 1);
 }
@@ -1179,6 +1212,14 @@ function resumeHeldBill(idx: number) {
 // Complete Bill & Print (F8)
 function completeAndPrintBill() {
   if (!cart.value.length) return;
+
+  // Insufficient cash tender validation
+  if (selectedPaymentMode.value === 'cash' && cashReceived.value < roundedGrandTotal.value) {
+    const shortfall = roundedGrandTotal.value - (cashReceived.value || 0);
+    if (!confirm(`Cash received (₹${formatMoney(cashReceived.value)}) is short by ₹${formatMoney(shortfall)}. Proceed with short tender?`)) {
+      return;
+    }
+  }
 
   const billNo = 'INV-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
   lastBill.value = {
