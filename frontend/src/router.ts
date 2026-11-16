@@ -11,6 +11,8 @@ import DayBookView from './pages/cash/DayBookView.vue';
 import GstDashboardView from './pages/gst/GstDashboardView.vue';
 import ReportsAnalyticsView from './pages/reports/ReportsAnalyticsView.vue';
 import SettingsView from './pages/settings/SettingsView.vue';
+import LoginView from './pages/auth/LoginView.vue';
+import SetupWizardView from './pages/setup/SetupWizardView.vue';
 
 const routes = [
   {
@@ -33,8 +35,8 @@ const routes = [
       { path: ':pathMatch(.*)*', redirect: '/' }
     ]
   },
-  { path: '/login', component: { template: '<div class="p-12 max-w-md mx-auto"><h1 class="text-2xl font-bold">EasyBill Login (SCR-A1)</h1></div>' } },
-  { path: '/setup', component: { template: '<div class="p-12 max-w-2xl mx-auto"><h1 class="text-2xl font-bold">Setup Wizard (SCR-B1)</h1></div>' } },
+  { path: '/login', component: LoginView },
+  { path: '/setup', component: SetupWizardView },
   { path: '/:pathMatch(.*)*', redirect: '/' }
 ];
 
