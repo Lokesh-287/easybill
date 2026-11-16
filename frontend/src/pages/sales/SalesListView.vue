@@ -537,12 +537,19 @@
         </div>
       </div>
     </div>
+
+    <!-- Frappe Statutory Print Format Preview Modal -->
+    <FrappePrintFormatModal
+      v-model="showPrintFormatModal"
+      :invoice="printTargetInvoice"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useToast } from '../../services/toast';
+import FrappePrintFormatModal from '../../components/FrappePrintFormatModal.vue';
 import {
   Plus,
   Search,
@@ -773,8 +780,32 @@ function confirmSalesReturn() {
   toast.success(`Sales Return Processed: Credit Note issued for ${inv.number}. Stock restored to Counter.`);
 }
 
+const showPrintFormatModal = ref(false);
+const printTargetInvoice = ref<any>(null);
+
 function reprintBill(inv: Invoice) {
-  toast.success(`Printing 80mm thermal receipt for ${inv.number}...`);
+  printTargetInvoice.value = {
+    number: inv.number,
+    date: inv.date,
+    time: '14:30',
+    customer: inv.customerName,
+    customer_phone: inv.customerPhone || '+91 94433 22110',
+    customer_address: 'Gandhipuram, Coimbatore',
+    items: inv.items.map(it => ({
+      name: it.name,
+      price: it.rate,
+      qty: it.qty,
+      unit: 'Pcs',
+      gst_rate: it.gstRate || 12,
+      hsn: '3004'
+    })),
+    taxable: inv.taxableAmount,
+    tax: inv.taxAmount,
+    total: inv.grandTotal,
+    mode: inv.paymentMethod || 'Cash'
+  };
+  showPrintFormatModal.value = true;
+  toast.success(`Opening Frappe Print Format for ${inv.number}...`);
 }
 
 function shareWhatsApp(inv: Invoice) {

@@ -1,9 +1,78 @@
 <template>
-  <div class="flex-1 flex flex-col lg:flex-row h-full overflow-hidden bg-slate-100 select-none">
-    <!-- ========================================== -->
-    <!-- LEFT PANE: Catalog, Search & Categories    -->
-    <!-- ========================================== -->
-    <div class="lg:w-7/12 flex flex-col p-4 border-r border-slate-200/90 overflow-hidden bg-slate-50/60">
+  <div class="flex-1 flex flex-col h-full overflow-hidden bg-slate-100 select-none">
+    <!-- ======================================================== -->
+    <!-- MULTI-CART BILLING TABS BAR (Tab 1, Tab 2, + New Tab)    -->
+    <!-- ======================================================== -->
+    <div class="bg-white border-b border-slate-200/90 px-3 py-1.5 flex items-center justify-between shrink-0 shadow-2xs z-10">
+      <div class="flex items-center space-x-1.5 overflow-x-auto scrollbar-none flex-1 mr-2 touch-pan-x">
+        <div
+          v-for="(t, idx) in billingTabs"
+          :key="t.id"
+          :data-testid="'billing-tab-' + (idx + 1)"
+          @click="switchBillingTab(t.id)"
+          :class="[
+            'px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center space-x-2 cursor-pointer border select-none shrink-0 min-h-[34px]',
+            activeTabId === t.id
+              ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
+              : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100 hover:text-slate-900'
+          ]"
+          :title="`Switch to Bill Tab ${idx + 1}`"
+        >
+          <span class="w-2 h-2 rounded-full" :class="getTabItemCount(t) ? 'bg-emerald-400' : 'bg-slate-300'"></span>
+          <span>Tab {{ idx + 1 }}: {{ t.customer.name }}</span>
+          <span
+            v-if="getTabItemCount(t)"
+            :class="[
+              'text-[10px] px-1.5 py-0.2 rounded-full font-tabular font-mono',
+              activeTabId === t.id ? 'bg-slate-800 text-emerald-300' : 'bg-slate-200 text-slate-700'
+            ]"
+          >
+            ₹{{ formatMoney(getTabTotal(t)) }}
+          </span>
+          <button
+            v-if="billingTabs.length > 1"
+            @click.stop="closeBillingTab(t.id)"
+            class="text-slate-400 hover:text-rose-400 p-0.5 rounded transition"
+            title="Close this Tab"
+          >
+            ✕
+          </button>
+        </div>
+
+        <!-- + New Tab Button -->
+        <button
+          data-testid="btn-new-tab"
+          @click="createNewBillingTab"
+          class="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-primary-50 hover:bg-primary-100 text-primary-700 border border-primary-200 transition flex items-center space-x-1 shrink-0 min-h-[34px]"
+          title="Open New Bill Tab (Ctrl+T)"
+        >
+          <Plus class="w-3.5 h-3.5" />
+          <span>New Tab</span>
+          <kbd class="hidden md:inline px-1 py-0.2 bg-primary-200/60 text-[9px] rounded font-mono">Ctrl+T</kbd>
+        </button>
+      </div>
+
+      <!-- Quick Actions (Print Format Preview & Hotkey) -->
+      <div class="hidden sm:flex items-center space-x-2 text-[11px] text-slate-500 font-medium">
+        <button
+          data-testid="btn-print-format"
+          @click="openPrintPreview"
+          :disabled="!cart.length"
+          class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs border border-slate-200 transition flex items-center space-x-1 disabled:opacity-40 cursor-pointer"
+          title="Preview Print Format (F7)"
+        >
+          <Eye class="w-3.5 h-3.5 text-slate-600" />
+          <span>Print Format (F7)</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- MAIN POS SCREEN (Tablet & Desktop split view: md:flex-row) -->
+    <div class="flex-1 flex flex-col md:flex-row h-full overflow-hidden">
+      <!-- ========================================== -->
+      <!-- LEFT PANE: Catalog, Search & Categories    -->
+      <!-- ========================================== -->
+      <div class="md:w-3/5 lg:w-7/12 flex flex-col p-3 md:p-4 border-r border-slate-200/90 overflow-hidden bg-slate-50/60">
       <!-- Search, Barcode & Action Controls -->
       <div class="flex items-center space-x-2.5 mb-3.5">
         <!-- Search Input -->
@@ -253,10 +322,10 @@
     <div
       :class="[
         'flex flex-col bg-white border-l border-slate-200/90 shadow-sm overflow-hidden flex-shrink-0',
-        'lg:w-5/12',
+        'md:w-2/5 lg:w-5/12',
         showMobileCart
           ? 'fixed inset-0 z-50 p-2 sm:p-4 bg-slate-900/60 backdrop-blur-xs flex justify-end animate-in fade-in'
-          : 'hidden lg:flex'
+          : 'hidden md:flex'
       ]"
     >
       <div
@@ -266,7 +335,7 @@
         ]"
       >
         <!-- Mobile Cart Header Close Button -->
-        <div v-if="showMobileCart" class="p-3 bg-slate-900 text-white flex items-center justify-between lg:hidden">
+        <div v-if="showMobileCart" class="p-3 bg-slate-900 text-white flex items-center justify-between md:hidden">
           <span class="text-xs font-bold">Shopping Cart ({{ cart.length }} items)</span>
           <button
             @click="showMobileCart = false"
@@ -340,7 +409,7 @@
       </div>
 
       <!-- Cart Line Items Table -->
-      <div class="flex-1 overflow-y-auto">
+      <div class="flex-1 overflow-y-auto" data-testid="pos-cart-container">
         <!-- Empty State -->
         <div
           v-if="cart.length === 0"
@@ -530,17 +599,29 @@
           </div>
         </div>
 
-        <!-- Bottom Action Buttons Toolbar (F8, F9, Hold) -->
-        <div class="grid grid-cols-2 gap-2 pt-1">
+        <!-- Bottom Action Buttons Toolbar (F8, F9, Hold, Preview) -->
+        <div class="grid grid-cols-3 gap-1.5 pt-1">
           <!-- Hold / Park Bill Button (F9) -->
           <button
             :disabled="!cart.length"
             @click="holdCurrentBill"
-            class="py-2.5 px-3 bg-slate-200 hover:bg-slate-300 active:bg-slate-400 disabled:opacity-40 disabled:cursor-not-allowed text-slate-800 font-bold text-xs rounded-xl transition flex items-center justify-center space-x-1.5"
+            class="py-2.5 px-2 bg-slate-200 hover:bg-slate-300 active:bg-slate-400 disabled:opacity-40 disabled:cursor-not-allowed text-slate-800 font-bold text-xs rounded-xl transition flex items-center justify-center space-x-1"
           >
             <Pause class="w-3.5 h-3.5" />
             <span>Hold Bill</span>
             <kbd class="px-1 py-0.2 bg-slate-300 text-[9px] rounded font-mono">F9</kbd>
+          </button>
+
+          <!-- Print Preview Button (F7) -->
+          <button
+            :disabled="!cart.length"
+            @click="openPrintPreview"
+            class="py-2.5 px-2 bg-slate-800 hover:bg-slate-900 active:bg-black disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-xs rounded-xl transition flex items-center justify-center space-x-1 shadow-xs cursor-pointer"
+            title="Preview Bill in Frappe Print Format (F7)"
+          >
+            <Eye class="w-3.5 h-3.5 text-primary-400" />
+            <span>Preview</span>
+            <kbd class="px-1 py-0.2 bg-slate-700 text-[9px] rounded font-mono">F7</kbd>
           </button>
 
           <!-- Primary CTA: Save & Print Bill (F8) -->
@@ -548,16 +629,23 @@
             :disabled="!cart.length"
             data-testid="btn-save-print"
             @click="completeAndPrintBill"
-            class="py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-xs rounded-xl shadow-md shadow-emerald-600/30 transition flex items-center justify-center space-x-1.5"
+            class="py-2.5 px-2 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-xs rounded-xl shadow-md shadow-emerald-600/30 transition flex items-center justify-center space-x-1"
           >
             <Printer class="w-4 h-4" />
             <span>Save & Print</span>
-            <kbd class="px-1.5 py-0.2 bg-emerald-700 text-emerald-100 text-[10px] rounded font-mono font-bold">F8</kbd>
+            <kbd class="px-1 py-0.2 bg-emerald-700 text-emerald-100 text-[9px] rounded font-mono font-bold">F8</kbd>
           </button>
         </div>
       </div>
     </div>
-  </div>
+    </div>
+    </div> <!-- Closes the md:flex-row split container -->
+
+    <!-- Frappe Statutory Print Format Preview Modal -->
+    <FrappePrintFormatModal
+      v-model="showPrintFormatModal"
+      :invoice="previewInvoice"
+    />
 
     <!-- ========================================== -->
     <!-- MODAL 1: Thermal Receipt Preview Modal     -->
@@ -917,6 +1005,7 @@ import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useToast } from '../../services/toast';
 import { bluetoothPrinter } from '../../services/bluetoothPrinter';
 import CameraBarcodeScanner from '../../components/CameraBarcodeScanner.vue';
+import FrappePrintFormatModal from '../../components/FrappePrintFormatModal.vue';
 import {
   Search,
   Plus,
@@ -935,10 +1024,26 @@ import {
   Banknote,
   Wallet,
   Camera,
-  ArrowRight
+  ArrowRight,
+  Eye
 } from '@lucide/vue';
 
 // Types
+interface BillingTab {
+  id: string;
+  name: string;
+  customer: {
+    name: string;
+    phone: string;
+    balance: number;
+    gstin?: string;
+  };
+  cart: CartItem[];
+  selectedPaymentMode: 'cash' | 'upi' | 'card' | 'credit';
+  cashReceived: number;
+  selectedGodown: string;
+}
+
 interface CatalogItem {
   code: string;
   name: string;
@@ -1173,6 +1278,146 @@ const paymentModes = [
 ];
 const selectedPaymentMode = ref<'cash' | 'upi' | 'card' | 'credit'>('cash');
 const cashReceived = ref<number>(0);
+const selectedGodown = ref<string>('Counter Shelf (Main)');
+
+// Multi-Cart Billing Tabs Engine
+const billingTabs = ref<BillingTab[]>([
+  {
+    id: 'tab-1',
+    name: 'Tab 1',
+    customer: { name: 'Walk-in Customer', phone: '', balance: 0 },
+    cart: [],
+    selectedPaymentMode: 'cash',
+    cashReceived: 0,
+    selectedGodown: 'Counter Shelf (Main)'
+  }
+]);
+const activeTabId = ref<string>('tab-1');
+
+function switchBillingTab(tabId: string) {
+  if (tabId === activeTabId.value) return;
+  // Save current tab state
+  const cur = billingTabs.value.find(t => t.id === activeTabId.value);
+  if (cur) {
+    cur.cart = [...cart.value];
+    cur.customer = { ...currentCustomer.value };
+    cur.selectedPaymentMode = selectedPaymentMode.value;
+    cur.cashReceived = cashReceived.value;
+    cur.selectedGodown = selectedGodown.value;
+  }
+
+  // Restore next tab state
+  const next = billingTabs.value.find(t => t.id === tabId);
+  if (next) {
+    activeTabId.value = tabId;
+    cart.value = [...next.cart];
+    currentCustomer.value = { ...next.customer };
+    selectedPaymentMode.value = next.selectedPaymentMode;
+    cashReceived.value = next.cashReceived;
+    selectedGodown.value = next.selectedGodown;
+    toast.info(`Switched to ${next.name} (${next.customer.name})`);
+  }
+}
+
+function createNewBillingTab() {
+  if (billingTabs.value.length >= 8) {
+    toast.warning('Max Tabs Reached', 'You can hold up to 8 active tabs simultaneously');
+    return;
+  }
+  const cur = billingTabs.value.find(t => t.id === activeTabId.value);
+  if (cur) {
+    cur.cart = [...cart.value];
+    cur.customer = { ...currentCustomer.value };
+    cur.selectedPaymentMode = selectedPaymentMode.value;
+    cur.cashReceived = cashReceived.value;
+    cur.selectedGodown = selectedGodown.value;
+  }
+
+  const newId = 'tab-' + Date.now();
+  const nextNumber = billingTabs.value.length + 1;
+  const newTab: BillingTab = {
+    id: newId,
+    name: `Tab ${nextNumber}`,
+    customer: { name: 'Walk-in Customer', phone: '', balance: 0 },
+    cart: [],
+    selectedPaymentMode: 'cash',
+    cashReceived: 0,
+    selectedGodown: 'Counter Shelf (Main)'
+  };
+  billingTabs.value.push(newTab);
+  activeTabId.value = newId;
+  cart.value = [];
+  currentCustomer.value = { ...newTab.customer };
+  selectedPaymentMode.value = 'cash';
+  cashReceived.value = 0;
+  toast.success(`Opened ${newTab.name} (+ New Cart)`);
+}
+
+function closeBillingTab(tabId: string) {
+  if (billingTabs.value.length <= 1) {
+    toast.info('Cannot close last active tab');
+    return;
+  }
+  const idx = billingTabs.value.findIndex(t => t.id === tabId);
+  if (idx === -1) return;
+
+  const target = billingTabs.value[idx];
+  if (target.cart.length > 0) {
+    if (!confirm(`Tab "${target.name}" has items in cart. Discard this tab?`)) {
+      return;
+    }
+  }
+
+  billingTabs.value.splice(idx, 1);
+  if (activeTabId.value === tabId) {
+    const nextTab = billingTabs.value[Math.max(0, idx - 1)];
+    activeTabId.value = nextTab.id;
+    cart.value = [...nextTab.cart];
+    currentCustomer.value = { ...nextTab.customer };
+    selectedPaymentMode.value = nextTab.selectedPaymentMode;
+    cashReceived.value = nextTab.cashReceived;
+    selectedGodown.value = nextTab.selectedGodown;
+  }
+}
+
+function getTabTotal(t: BillingTab): number {
+  if (t.id === activeTabId.value) {
+    return roundedGrandTotal.value;
+  }
+  return t.cart.reduce((sum, it) => sum + (it.price * it.qty), 0);
+}
+
+function getTabItemCount(t: BillingTab): number {
+  if (t.id === activeTabId.value) {
+    return cart.value.length;
+  }
+  return t.cart.length;
+}
+
+// Frappe Print Format Preview State
+const showPrintFormatModal = ref(false);
+const previewInvoice = ref<any>({});
+
+function openPrintPreview() {
+  if (!cart.value.length) {
+    toast.info('Cart is empty', 'Add items to preview print format');
+    return;
+  }
+  previewInvoice.value = {
+    number: 'INV-' + new Date().getFullYear() + '-DRAFT',
+    date: new Date().toLocaleDateString('en-IN'),
+    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    customer: currentCustomer.value.name,
+    customer_phone: currentCustomer.value.phone,
+    items: [...cart.value],
+    taxable: taxableSubtotal.value,
+    tax: totalTax.value,
+    total: roundedGrandTotal.value,
+    mode: selectedPaymentMode.value,
+    godown: selectedGodown.value
+  };
+  showPrintFormatModal.value = true;
+}
 
 // Held Bills Queue (SCR-E5)
 const heldBills = ref<any[]>([]);
@@ -1311,6 +1556,11 @@ function handleSearchEnter() {
 // Customer Operations
 function selectCustomer(cust: any) {
   currentCustomer.value = cust;
+  const cur = billingTabs.value.find(t => t.id === activeTabId.value);
+  if (cur) {
+    cur.customer = { ...cust };
+    cur.name = cust.name === 'Walk-in Customer' ? `Tab ${billingTabs.value.indexOf(cur) + 1}` : cust.name;
+  }
   showCustomerModal.value = false;
   toast.info(`Selected customer: ${cust.name}`);
 }
@@ -1394,20 +1644,32 @@ function completeAndPrintBill() {
   }
 
   const billNo = 'INV-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
-  lastBill.value = {
+  const completedBill = {
     number: billNo,
     date: new Date().toLocaleDateString('en-IN'),
+    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     customer: currentCustomer.value.name,
+    customer_phone: currentCustomer.value.phone,
     items: [...cart.value],
     taxable: taxableSubtotal.value,
     tax: totalTax.value,
     total: roundedGrandTotal.value,
-    mode: selectedPaymentMode.value
+    mode: selectedPaymentMode.value,
+    godown: selectedGodown.value
   };
 
+  lastBill.value = completedBill;
+  previewInvoice.value = completedBill;
+  showPrintFormatModal.value = true;
   showReceiptModal.value = true;
   cart.value = [];
   cashReceived.value = 0;
+  // Also clear active tab
+  const cur = billingTabs.value.find(t => t.id === activeTabId.value);
+  if (cur) {
+    cur.cart = [];
+    cur.cashReceived = 0;
+  }
   toast.success(`Bill #${billNo} for ₹${formatMoney(lastBill.value.total)} completed successfully!`);
 }
 
@@ -1430,7 +1692,7 @@ function formatMoney(amount: number | undefined): string {
   });
 }
 
-// Global Keyboard Shortcuts (F2, F4, F8, F9, F3, Esc)
+// Global Keyboard Shortcuts (F2, F4, F7, F8, F9, F3, Ctrl+T, Ctrl+W, Esc)
 function handleKeydown(e: KeyboardEvent) {
   if (e.key === 'F2') {
     e.preventDefault();
@@ -1438,6 +1700,9 @@ function handleKeydown(e: KeyboardEvent) {
   } else if (e.key === 'F4') {
     e.preventDefault();
     showCustomerModal.value = true;
+  } else if (e.key === 'F7') {
+    e.preventDefault();
+    openPrintPreview();
   } else if (e.key === 'F8') {
     e.preventDefault();
     completeAndPrintBill();
@@ -1447,7 +1712,14 @@ function handleKeydown(e: KeyboardEvent) {
   } else if (e.key === 'F3') {
     e.preventDefault();
     showQuickAddModal.value = true;
+  } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 't') {
+    e.preventDefault();
+    createNewBillingTab();
+  } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'w') {
+    e.preventDefault();
+    closeBillingTab(activeTabId.value);
   } else if (e.key === 'Escape') {
+    showPrintFormatModal.value = false;
     showReceiptModal.value = false;
     showCustomerModal.value = false;
     showQuickAddModal.value = false;
