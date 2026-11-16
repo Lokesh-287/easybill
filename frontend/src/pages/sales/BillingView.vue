@@ -14,7 +14,7 @@
             v-model="searchQuery"
             type="text"
             placeholder="Scan barcode or search name/HSN (F2)..."
-            class="w-full pl-10 pr-20 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 shadow-xs transition"
+            class="w-full pl-10 pr-20 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 shadow-xs transition"
             @keydown.enter="handleSearchEnter"
             @keydown.esc="searchQuery = ''"
           />
@@ -47,11 +47,11 @@
         <!-- Quick Add Item Button (SCR-F5) -->
         <button
           @click="showQuickAddModal = true"
-          class="px-3.5 py-2.5 bg-sky-600 hover:bg-sky-700 active:bg-sky-800 text-white font-semibold text-xs rounded-xl shadow-xs shadow-sky-600/30 flex items-center space-x-1.5 transition"
+          class="px-3.5 py-2.5 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-semibold text-xs rounded-xl shadow-xs shadow-primary-600/30 flex items-center space-x-1.5 transition"
         >
           <Plus class="w-4 h-4" />
           <span class="hidden sm:inline">Add Item</span>
-          <kbd class="hidden md:inline px-1 py-0.2 bg-sky-700 text-[9px] rounded font-mono">F3</kbd>
+          <kbd class="hidden md:inline px-1 py-0.2 bg-primary-700 text-[9px] rounded font-mono">F3</kbd>
         </button>
       </div>
 
@@ -126,7 +126,7 @@
           :key="item.code"
           data-testid="pos-item-card"
           @click="addToCart(item)"
-          class="pos-item-card bg-white p-3 rounded-xl border border-slate-200 hover:border-sky-500 hover:shadow-md cursor-pointer transition-all duration-150 flex flex-col justify-between group active:scale-[0.98] relative overflow-hidden"
+          class="pos-item-card bg-white p-3 rounded-xl border border-slate-200 hover:border-primary-500 hover:shadow-md cursor-pointer transition-all duration-150 flex flex-col justify-between group active:scale-[0.98] relative overflow-hidden"
         >
           <!-- Category & Stock Badges -->
           <div>
@@ -150,7 +150,7 @@
             </div>
 
             <!-- Product Names -->
-            <h3 class="font-semibold text-slate-900 text-xs leading-snug group-hover:text-sky-600 transition-colors line-clamp-2">
+            <h3 class="font-semibold text-slate-900 text-xs leading-snug group-hover:text-primary-600 transition-colors line-clamp-2">
               {{ item.name }}
             </h3>
             <div v-if="item.name_ta" class="text-[11px] text-slate-500 font-medium mt-0.5 truncate">
@@ -181,7 +181,7 @@
           v-for="item in filteredItems"
           :key="item.code"
           @click="addToCart(item)"
-          class="px-3.5 py-2 hover:bg-sky-50/60 cursor-pointer flex items-center justify-between transition group"
+          class="px-3.5 py-2 hover:bg-primary-50/60 cursor-pointer flex items-center justify-between transition group"
         >
           <div class="flex items-center space-x-3 min-w-0">
             <div class="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-xs text-slate-600 flex-shrink-0">
@@ -189,7 +189,7 @@
             </div>
             <div class="min-w-0">
               <div class="flex items-center space-x-2">
-                <span class="font-semibold text-xs text-slate-900 group-hover:text-sky-600 truncate">{{ item.name }}</span>
+                <span class="font-semibold text-xs text-slate-900 group-hover:text-primary-600 truncate">{{ item.name }}</span>
                 <span class="text-[10px] text-slate-400 font-mono">HSN: {{ item.hsn }}</span>
               </div>
               <div class="text-[11px] text-slate-500 truncate">{{ item.name_ta }} • {{ item.category }}</div>
@@ -204,7 +204,7 @@
             <span class="text-xs font-bold text-slate-900 font-tabular w-16 text-right">
               ₹{{ formatMoney(item.price) }}
             </span>
-            <button class="p-1 rounded-md bg-slate-100 text-slate-600 group-hover:bg-sky-600 group-hover:text-white transition">
+            <button class="p-1 rounded-md bg-slate-100 text-slate-600 group-hover:bg-primary-600 group-hover:text-white transition">
               <Plus class="w-3.5 h-3.5" />
             </button>
           </div>
@@ -223,12 +223,12 @@
           class="flex items-center space-x-2.5 cursor-pointer group p-1 -m-1 rounded-lg hover:bg-slate-200/60 transition"
           title="Change Customer (F4)"
         >
-          <div class="w-8 h-8 rounded-lg bg-sky-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
+          <div class="w-8 h-8 rounded-lg bg-primary-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
             <User class="w-4 h-4" />
           </div>
           <div>
             <div class="flex items-center space-x-1.5">
-              <span class="text-xs font-bold text-slate-900 group-hover:text-sky-600 transition truncate max-w-[170px]">
+              <span class="text-xs font-bold text-slate-900 group-hover:text-primary-600 transition truncate max-w-[170px]">
                 {{ currentCustomer.name }}
               </span>
               <kbd class="px-1 py-0.2 text-[9px] bg-white border border-slate-300 text-slate-500 rounded font-mono">F4</kbd>
@@ -332,7 +332,7 @@
                 v-model.number="line.qty"
                 type="number"
                 min="1"
-                class="w-10 h-6 text-center text-xs font-bold text-slate-900 bg-white border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-sky-500 font-tabular"
+                class="w-10 h-6 text-center text-xs font-bold text-slate-900 bg-white border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500 font-tabular"
               />
               <button
                 @click="updateQty(line, 1)"
@@ -416,7 +416,7 @@
                 v-model.number="cashReceived"
                 type="number"
                 placeholder="0.00"
-                class="w-24 px-2 py-1 bg-slate-50 border border-slate-300 rounded-lg text-right font-bold text-xs text-slate-900 font-tabular focus:outline-none focus:ring-1 focus:ring-sky-500"
+                class="w-24 px-2 py-1 bg-slate-50 border border-slate-300 rounded-lg text-right font-bold text-xs text-slate-900 font-tabular focus:outline-none focus:ring-1 focus:ring-primary-500"
               />
             </div>
           </div>
@@ -603,7 +603,7 @@
       <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md p-5">
         <div class="flex items-center justify-between pb-3 border-b border-slate-100">
           <div class="flex items-center space-x-2">
-            <User class="w-5 h-5 text-sky-600" />
+            <User class="w-5 h-5 text-primary-600" />
             <h3 class="text-sm font-bold text-slate-900">Select Customer (F4)</h3>
           </div>
           <button @click="showCustomerModal = false" class="p-1 text-slate-400 hover:text-slate-600 rounded-lg">
@@ -617,7 +617,7 @@
             v-for="c in customersList"
             :key="c.id"
             @click="selectCustomer(c)"
-            class="p-2.5 rounded-xl border border-slate-200 hover:border-sky-500 hover:bg-sky-50/60 cursor-pointer transition flex items-center justify-between"
+            class="p-2.5 rounded-xl border border-slate-200 hover:border-primary-500 hover:bg-primary-50/60 cursor-pointer transition flex items-center justify-between"
           >
             <div>
               <div class="font-bold text-xs text-slate-900">{{ c.name }}</div>
@@ -649,7 +649,7 @@
       <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-lg p-6">
         <div class="flex items-center justify-between pb-4 border-b border-slate-100">
           <div class="flex items-center space-x-2">
-            <div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center">
+            <div class="w-8 h-8 rounded-lg bg-primary-100 text-primary-700 flex items-center justify-center">
               <Plus class="w-4 h-4" />
             </div>
             <div>
@@ -671,7 +671,7 @@
                 required
                 type="text"
                 placeholder="e.g. Crocin Advance"
-                class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-sky-500 font-medium"
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary-500 font-medium"
               />
             </div>
             <div>
@@ -680,7 +680,7 @@
                 v-model="newItem.name_ta"
                 type="text"
                 placeholder="e.g. குரோசின்"
-                class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-sky-500 font-medium"
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary-500 font-medium"
               />
             </div>
           </div>
@@ -690,7 +690,7 @@
               <label class="block text-[11px] font-semibold text-slate-700 mb-1">Category</label>
               <select
                 v-model="newItem.category"
-                class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-sky-500 font-medium"
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary-500 font-medium"
               >
                 <option value="Medicines">Medicines</option>
                 <option value="General">General</option>
@@ -704,14 +704,14 @@
                 v-model="newItem.hsn"
                 type="text"
                 placeholder="3004"
-                class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-sky-500 font-medium font-mono"
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary-500 font-medium font-mono"
               />
             </div>
             <div>
               <label class="block text-[11px] font-semibold text-slate-700 mb-1">GST Rate (%)</label>
               <select
                 v-model.number="newItem.gst_rate"
-                class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-sky-500 font-medium"
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary-500 font-medium"
               >
                 <option :value="0">0%</option>
                 <option :value="5">5%</option>
@@ -731,7 +731,7 @@
                 type="number"
                 step="0.01"
                 placeholder="0.00"
-                class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-sky-500 font-bold font-tabular"
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary-500 font-bold font-tabular"
               />
             </div>
             <div>
@@ -740,7 +740,7 @@
                 v-model="newItem.unit"
                 type="text"
                 placeholder="Strip / Pcs"
-                class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-sky-500 font-medium"
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary-500 font-medium"
               />
             </div>
             <div>
@@ -749,7 +749,7 @@
                 v-model.number="newItem.stock"
                 type="number"
                 placeholder="50"
-                class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-sky-500 font-bold font-tabular"
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary-500 font-bold font-tabular"
               />
             </div>
           </div>
@@ -764,7 +764,7 @@
             </button>
             <button
               type="submit"
-              class="px-5 py-2 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-xl shadow-xs transition"
+              class="px-5 py-2 bg-primary-600 hover:bg-primary-700 text-white font-bold text-xs rounded-xl shadow-xs transition"
             >
               Add to Catalog & Cart
             </button>

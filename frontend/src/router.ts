@@ -1,6 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import AppShell from './layouts/AppShell.vue';
 import BillingView from './pages/sales/BillingView.vue';
+import SalesListView from './pages/sales/SalesListView.vue';
 
 const routes = [
   {
@@ -9,7 +10,7 @@ const routes = [
     children: [
       { path: '', component: BillingView },
       { path: 'bill/new', component: BillingView },
-      { path: 'sales', component: { template: '<div class="p-6"><h1 class="text-2xl font-bold">SCR-E2: Sales List</h1></div>' } },
+      { path: 'sales', component: SalesListView },
       { path: 'items', component: { template: '<div class="p-6"><h1 class="text-2xl font-bold">SCR-C1: Item Catalog</h1></div>' } },
       { path: 'parties', component: { template: '<div class="p-6"><h1 class="text-2xl font-bold">SCR-D1: Parties</h1></div>' } },
       { path: 'purchase', component: { template: '<div class="p-6"><h1 class="text-2xl font-bold">SCR-F1: Purchases</h1></div>' } },

@@ -1,71 +1,43 @@
 <template>
-  <div class="flex h-screen bg-slate-900 overflow-hidden font-sans select-none">
-    <!-- Desktop Sleek Sidebar -->
-    <aside class="hidden lg:flex lg:flex-col w-64 bg-slate-950 text-slate-300 border-r border-slate-800/80 flex-shrink-0">
-      <!-- Store Branding & Logo -->
-      <div class="h-16 flex items-center justify-between px-5 border-b border-slate-800/80 bg-slate-950/60">
+  <div class="flex h-screen bg-slate-50 text-slate-800 font-sans overflow-hidden select-none">
+    <!-- Sleek Behance-Style Sidebar (Clean Light Minimalist) -->
+    <aside class="hidden lg:flex lg:flex-col w-64 bg-white border-r border-slate-200/80 flex-shrink-0 z-20">
+      <!-- Brand Header -->
+      <div class="h-16 flex items-center justify-between px-5 border-b border-slate-100">
         <div class="flex items-center space-x-3">
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-600 to-emerald-500 flex items-center justify-center text-white shadow-lg shadow-sky-500/20">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-primary-600 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-primary-500/25">
             <Receipt class="w-5 h-5" :stroke-width="2.2" />
           </div>
           <div>
-            <div class="font-bold text-white text-base tracking-tight leading-none flex items-center space-x-1.5">
+            <div class="font-extrabold text-slate-900 text-base tracking-tight leading-none flex items-center space-x-1.5">
               <span>EasyBill</span>
-              <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-sky-500/10 text-sky-400 border border-sky-500/20">POS</span>
+              <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-primary-50 text-primary-700 border border-primary-200/60">
+                PRO
+              </span>
             </div>
             <div class="text-[11px] text-slate-400 font-medium mt-1 truncate max-w-[130px]">
-              Coimbatore Main
+              Finance & POS
             </div>
           </div>
         </div>
 
         <button
-          @click="toggleStoreMenu"
-          title="Switch Branch / Register"
-          class="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition"
+          @click="toggleBranchMenu"
+          title="Switch Branch"
+          class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
         >
           <ChevronDown class="w-4 h-4" />
         </button>
       </div>
 
-      <!-- Navigation Section -->
-      <nav class="flex-1 px-3 py-4 space-y-6 overflow-y-auto">
-        <!-- Group 1: Core Operations -->
+      <!-- Navigation Links -->
+      <nav class="flex-1 px-3.5 py-4 space-y-6 overflow-y-auto">
+        <!-- Section 1: Invoicing & Sales -->
         <div>
           <div class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">
-            Operations
+            Invoicing & POS
           </div>
           <div class="space-y-1">
-            <router-link
-              to="/bill/new"
-              v-slot="{ isActive, href, navigate }"
-              custom
-            >
-              <a
-                :href="href"
-                @click="navigate"
-                :class="[
-                  'group flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all',
-                  isActive
-                    ? 'bg-sky-600 text-white shadow-md shadow-sky-600/30'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-900'
-                ]"
-              >
-                <div class="flex items-center space-x-3">
-                  <Receipt :class="['w-4 h-4', isActive ? 'text-white' : 'text-sky-400 group-hover:text-white']" :stroke-width="2" />
-                  <span>Billing POS</span>
-                </div>
-                <span
-                  :class="[
-                    'text-[10px] px-1.5 py-0.5 rounded font-mono font-medium',
-                    isActive ? 'bg-sky-700/80 text-white' : 'bg-slate-800 text-slate-400'
-                  ]"
-                >
-                  F8
-                </span>
-              </a>
-            </router-link>
-
             <router-link
               to="/sales"
               v-slot="{ isActive, href, navigate }"
@@ -75,16 +47,52 @@
                 :href="href"
                 @click="navigate"
                 :class="[
-                  'group flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all',
+                  'group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all',
                   isActive
-                    ? 'bg-slate-800 text-white font-semibold'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                    ? 'bg-primary-600 text-white shadow-md shadow-primary-500/25'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
                 ]"
               >
                 <div class="flex items-center space-x-3">
-                  <FileText :class="['w-4 h-4', isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-300']" :stroke-width="1.8" />
-                  <span>Sales Invoices</span>
+                  <FileText :class="['w-4 h-4', isActive ? 'text-white' : 'text-slate-400 group-hover:text-primary-600']" :stroke-width="2" />
+                  <span>Invoices & Bills</span>
                 </div>
+                <span
+                  v-if="!isActive"
+                  class="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-500 group-hover:bg-primary-50 group-hover:text-primary-700 font-tabular"
+                >
+                  SCR-E2
+                </span>
+              </a>
+            </router-link>
+
+            <router-link
+              to="/bill/new"
+              v-slot="{ isActive, href, navigate }"
+              custom
+            >
+              <a
+                :href="href"
+                @click="navigate"
+                :class="[
+                  'group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all',
+                  isActive
+                    ? 'bg-primary-600 text-white shadow-md shadow-primary-500/25'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
+                ]"
+              >
+                <div class="flex items-center space-x-3">
+                  <Receipt :class="['w-4 h-4', isActive ? 'text-white' : 'text-slate-400 group-hover:text-primary-600']" :stroke-width="2" />
+                  <span>Rapid Billing POS</span>
+                </div>
+                <span
+                  :class="[
+                    'text-[10px] px-1.5 py-0.5 rounded font-mono font-bold',
+                    isActive ? 'bg-primary-700 text-white' : 'bg-slate-100 text-slate-500'
+                  ]"
+                >
+                  F8
+                </span>
               </a>
             </router-link>
 
@@ -97,22 +105,22 @@
                 :href="href"
                 @click="navigate"
                 :class="[
-                  'group flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all',
+                  'group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all',
                   isActive
-                    ? 'bg-slate-800 text-white font-semibold'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                    ? 'bg-primary-600 text-white shadow-md shadow-primary-500/25'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
                 ]"
               >
                 <div class="flex items-center space-x-3">
-                  <ShoppingBag :class="['w-4 h-4', isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-300']" :stroke-width="1.8" />
-                  <span>Purchases</span>
+                  <ShoppingBag :class="['w-4 h-4', isActive ? 'text-white' : 'text-slate-400 group-hover:text-primary-600']" :stroke-width="1.8" />
+                  <span>Purchases (Inward)</span>
                 </div>
               </a>
             </router-link>
           </div>
         </div>
 
-        <!-- Group 2: Master Records -->
+        <!-- Section 2: Catalog & Master Data -->
         <div>
           <div class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">
             Catalog & Parties
@@ -127,15 +135,15 @@
                 :href="href"
                 @click="navigate"
                 :class="[
-                  'group flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all',
+                  'group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all',
                   isActive
-                    ? 'bg-slate-800 text-white font-semibold'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                    ? 'bg-primary-600 text-white shadow-md shadow-primary-500/25'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
                 ]"
               >
                 <div class="flex items-center space-x-3">
-                  <Package :class="['w-4 h-4', isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-300']" :stroke-width="1.8" />
-                  <span>Items & Barcodes</span>
+                  <Package :class="['w-4 h-4', isActive ? 'text-white' : 'text-slate-400 group-hover:text-primary-600']" :stroke-width="1.8" />
+                  <span>Items & Catalog</span>
                 </div>
               </a>
             </router-link>
@@ -149,14 +157,14 @@
                 :href="href"
                 @click="navigate"
                 :class="[
-                  'group flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all',
+                  'group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all',
                   isActive
-                    ? 'bg-slate-800 text-white font-semibold'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                    ? 'bg-primary-600 text-white shadow-md shadow-primary-500/25'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
                 ]"
               >
                 <div class="flex items-center space-x-3">
-                  <Users :class="['w-4 h-4', isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-300']" :stroke-width="1.8" />
+                  <Users :class="['w-4 h-4', isActive ? 'text-white' : 'text-slate-400 group-hover:text-primary-600']" :stroke-width="1.8" />
                   <span>Customers & Vendors</span>
                 </div>
               </a>
@@ -171,22 +179,22 @@
                 :href="href"
                 @click="navigate"
                 :class="[
-                  'group flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all',
+                  'group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all',
                   isActive
-                    ? 'bg-slate-800 text-white font-semibold'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                    ? 'bg-primary-600 text-white shadow-md shadow-primary-500/25'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
                 ]"
               >
                 <div class="flex items-center space-x-3">
-                  <Package :class="['w-4 h-4', isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-300']" :stroke-width="1.8" />
-                  <span>Stock & Inventory</span>
+                  <Boxes :class="['w-4 h-4', isActive ? 'text-white' : 'text-slate-400 group-hover:text-primary-600']" :stroke-width="1.8" />
+                  <span>Stock Inventory</span>
                 </div>
               </a>
             </router-link>
           </div>
         </div>
 
-        <!-- Group 3: Finance & Reports -->
+        <!-- Section 3: Finance & Reports -->
         <div>
           <div class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">
             Finance & Tax
@@ -201,14 +209,14 @@
                 :href="href"
                 @click="navigate"
                 :class="[
-                  'group flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all',
+                  'group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all',
                   isActive
-                    ? 'bg-slate-800 text-white font-semibold'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                    ? 'bg-primary-600 text-white shadow-md shadow-primary-500/25'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
                 ]"
               >
                 <div class="flex items-center space-x-3">
-                  <Wallet :class="['w-4 h-4', isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-300']" :stroke-width="1.8" />
+                  <Wallet :class="['w-4 h-4', isActive ? 'text-white' : 'text-slate-400 group-hover:text-primary-600']" :stroke-width="1.8" />
                   <span>Day Book & Cash</span>
                 </div>
               </a>
@@ -223,15 +231,15 @@
                 :href="href"
                 @click="navigate"
                 :class="[
-                  'group flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all',
+                  'group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all',
                   isActive
-                    ? 'bg-slate-800 text-white font-semibold'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                    ? 'bg-primary-600 text-white shadow-md shadow-primary-500/25'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
                 ]"
               >
                 <div class="flex items-center space-x-3">
-                  <ShieldCheck :class="['w-4 h-4', isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-300']" :stroke-width="1.8" />
-                  <span>GST Dashboard</span>
+                  <ShieldCheck :class="['w-4 h-4', isActive ? 'text-white' : 'text-slate-400 group-hover:text-primary-600']" :stroke-width="1.8" />
+                  <span>GST Compliance</span>
                 </div>
               </a>
             </router-link>
@@ -245,15 +253,15 @@
                 :href="href"
                 @click="navigate"
                 :class="[
-                  'group flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all',
+                  'group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all',
                   isActive
-                    ? 'bg-slate-800 text-white font-semibold'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                    ? 'bg-primary-600 text-white shadow-md shadow-primary-500/25'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
                 ]"
               >
                 <div class="flex items-center space-x-3">
-                  <BarChart3 :class="['w-4 h-4', isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-300']" :stroke-width="1.8" />
-                  <span>Reports & Insights</span>
+                  <BarChart3 :class="['w-4 h-4', isActive ? 'text-white' : 'text-slate-400 group-hover:text-primary-600']" :stroke-width="1.8" />
+                  <span>Analytics & Reports</span>
                 </div>
               </a>
             </router-link>
@@ -267,14 +275,14 @@
                 :href="href"
                 @click="navigate"
                 :class="[
-                  'group flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all',
+                  'group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all',
                   isActive
-                    ? 'bg-slate-800 text-white font-semibold'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                    ? 'bg-primary-600 text-white shadow-md shadow-primary-500/25'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
                 ]"
               >
                 <div class="flex items-center space-x-3">
-                  <Settings :class="['w-4 h-4', isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-300']" :stroke-width="1.8" />
+                  <Settings :class="['w-4 h-4', isActive ? 'text-white' : 'text-slate-400 group-hover:text-primary-600']" :stroke-width="1.8" />
                   <span>Settings & Devices</span>
                 </div>
               </a>
@@ -283,36 +291,38 @@
         </div>
       </nav>
 
-      <!-- Bottom Register Status & User Card -->
-      <div class="p-3 border-t border-slate-800/80 bg-slate-950/80">
+      <!-- Sidebar Bottom: Shift KPI Card & User Card -->
+      <div class="p-3.5 border-t border-slate-100 bg-slate-50/60">
         <!-- Daily sales mini card -->
-        <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 mb-2.5">
-          <div class="flex items-center justify-between text-[11px] text-slate-400 mb-1">
-            <span>Today's Counter Sales</span>
-            <span class="text-emerald-400 font-bold font-tabular">28 Bills</span>
+        <div class="p-3 rounded-2xl bg-white border border-slate-200/80 shadow-card mb-3">
+          <div class="flex items-center justify-between text-[11px] text-slate-500 mb-1">
+            <span class="font-medium">Today's Revenue</span>
+            <span class="text-emerald-700 font-bold font-tabular bg-emerald-50 px-1.5 py-0.2 rounded-md">
+              +12.8%
+            </span>
           </div>
-          <div class="text-sm font-bold text-white font-tabular flex items-baseline justify-between">
+          <div class="text-base font-extrabold text-slate-900 font-tabular flex items-baseline justify-between">
             <span>₹14,820.00</span>
-            <span class="text-[10px] font-normal text-slate-400">Shift #1</span>
+            <span class="text-[11px] font-medium text-slate-400">28 Bills</span>
           </div>
         </div>
 
         <div class="flex items-center justify-between px-1">
           <div class="flex items-center space-x-2.5 min-w-0">
-            <div class="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-xs text-sky-400">
+            <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-slate-800 to-slate-700 text-white flex items-center justify-center font-bold text-xs shadow-xs">
               LK
             </div>
             <div class="min-w-0">
-              <div class="text-xs font-semibold text-white truncate">Lokesh (Owner)</div>
-              <div class="text-[10px] text-emerald-400 flex items-center space-x-1">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              <div class="text-xs font-bold text-slate-900 truncate">Lokesh (Owner)</div>
+              <div class="text-[10px] text-emerald-600 font-semibold flex items-center space-x-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                 <span>Active Shift</span>
               </div>
             </div>
           </div>
           <button
             title="Log Out"
-            class="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition"
+            class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
           >
             <LogOut class="w-4 h-4" />
           </button>
@@ -320,47 +330,58 @@
       </div>
     </aside>
 
-    <!-- Main Workspace Container -->
+    <!-- Main Workspace Area -->
     <div class="flex-1 flex flex-col min-w-0 bg-slate-50 overflow-hidden">
-      <!-- Top Action Bar -->
-      <header class="h-14 bg-white border-b border-slate-200/90 px-5 flex items-center justify-between flex-shrink-0 z-10 shadow-xs">
-        <!-- Left: Quick Navigation / Title -->
+      <!-- Topbar Header -->
+      <header class="h-16 bg-white border-b border-slate-200/80 px-6 flex items-center justify-between flex-shrink-0 z-10">
+        <!-- Left: Breadcrumb / Active Route Title -->
         <div class="flex items-center space-x-3">
-          <div class="font-bold text-slate-900 text-sm tracking-tight flex items-center space-x-2">
-            <span>EasyBill POS</span>
+          <div class="text-xs text-slate-400 font-medium flex items-center space-x-1.5">
+            <span>Dashboard</span>
             <span class="text-slate-300">/</span>
-            <span class="text-slate-600 font-normal">Express Billing Terminal</span>
+            <span class="font-bold text-slate-900 text-sm">
+              {{ $route.path === '/sales' ? 'Invoices & Billing Dashboard' : 'Express Billing POS Terminal' }}
+            </span>
           </div>
         </div>
 
-        <!-- Center: Universal Search / Command Shortcut -->
+        <!-- Center: Universal Search Input -->
         <div class="hidden md:flex items-center w-80 lg:w-96 relative">
-          <Search class="w-4 h-4 absolute left-3 text-slate-400 pointer-events-none" />
+          <Search class="w-4 h-4 absolute left-3.5 text-slate-400 pointer-events-none" />
           <input
             type="text"
-            placeholder="Search bills, items, customers (Press F1)..."
-            class="w-full pl-9 pr-14 py-1.5 bg-slate-100 hover:bg-slate-100/80 focus:bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition"
+            placeholder="Search invoices, clients, items (F1)..."
+            class="w-full pl-10 pr-14 py-2 bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition shadow-2xs"
           />
-          <kbd class="absolute right-2 px-1.5 py-0.5 text-[10px] bg-white border border-slate-300 text-slate-500 rounded font-mono shadow-xs">
+          <kbd class="absolute right-3 px-1.5 py-0.5 text-[10px] bg-white border border-slate-200 text-slate-500 rounded font-mono shadow-2xs">
             F1
           </kbd>
         </div>
 
-        <!-- Right: Status Indicators & Quick Toggles -->
+        <!-- Right: Actions, Badges & Toggles -->
         <div class="flex items-center space-x-3">
-          <!-- Printer Ready Badge -->
+          <!-- Fast Route CTA -->
+          <router-link
+            v-if="$route.path !== '/bill/new'"
+            to="/bill/new"
+            class="hidden sm:flex items-center space-x-1.5 px-3 py-1.5 bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold rounded-xl shadow-xs shadow-primary-500/25 transition"
+          >
+            <Plus class="w-3.5 h-3.5" />
+            <span>New Bill (F8)</span>
+          </router-link>
+
+          <!-- Printer Status -->
           <div
-            title="Thermal Printer Status: Connected (TVS RP3200 80mm)"
-            class="hidden sm:flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-[11px] font-medium text-slate-700"
+            title="Thermal Printer Status: Ready (RP3200 80mm)"
+            class="hidden sm:flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-[11px] font-medium text-slate-600"
           >
             <Printer class="w-3.5 h-3.5 text-emerald-600" />
-            <span class="font-mono text-[10px]">RP3200 (Ready)</span>
+            <span class="font-mono text-[10px]">RP3200 Ready</span>
           </div>
 
           <!-- Cloud Sync Badge -->
           <div
-            title="Real-time Frappe sync status: Online and synchronized"
-            class="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-[11px] font-semibold text-emerald-700"
+            class="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-[11px] font-bold text-emerald-700"
           >
             <span class="relative flex h-2 w-2">
               <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -369,94 +390,20 @@
             <span>Synced</span>
           </div>
 
-          <!-- Language Switcher Pill -->
+          <!-- Language Switcher -->
           <button
             @click="toggleLang"
-            title="Toggle Language (English / தமிழ்)"
-            class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition flex items-center space-x-1"
+            class="px-2.5 py-1 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition"
           >
-            <span class="text-sky-600 font-bold">🌐</span>
-            <span>{{ currentLang === 'en' ? 'தமிழ்' : 'English' }}</span>
-          </button>
-
-          <!-- Shortcuts Dialog Trigger -->
-          <button
-            @click="showShortcutsModal = true"
-            title="Keyboard Shortcuts Guide"
-            class="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition"
-          >
-            <HelpCircle class="w-4 h-4" />
+            🌐 {{ currentLang === 'en' ? 'தமிழ்' : 'English' }}
           </button>
         </div>
       </header>
 
-      <!-- Main Workspace View (Current Screen) -->
+      <!-- Main Screen View -->
       <main class="flex-1 overflow-hidden relative">
         <router-view />
       </main>
-    </div>
-
-    <!-- Keyboard Shortcuts Modal -->
-    <div
-      v-if="showShortcutsModal"
-      class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4"
-      @click.self="showShortcutsModal = false"
-    >
-      <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-lg p-6 animate-in fade-in zoom-in-95 duration-150">
-        <div class="flex items-center justify-between pb-4 border-b border-slate-100">
-          <div class="flex items-center space-x-2">
-            <div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center">
-              <Receipt class="w-4 h-4" />
-            </div>
-            <div>
-              <h3 class="text-base font-bold text-slate-900">POS Keyboard Shortcuts</h3>
-              <p class="text-xs text-slate-500">Lightning-fast cashier controls</p>
-            </div>
-          </div>
-          <button
-            @click="showShortcutsModal = false"
-            class="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition"
-          >
-            <X class="w-4 h-4" />
-          </button>
-        </div>
-
-        <div class="py-4 grid grid-cols-2 gap-3 text-xs">
-          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
-            <span class="font-medium text-slate-700">Search Item / Focus</span>
-            <kbd class="px-2 py-1 bg-white border border-slate-300 rounded font-mono font-bold text-slate-800 shadow-xs">F2</kbd>
-          </div>
-          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
-            <span class="font-medium text-slate-700">Customer Selector</span>
-            <kbd class="px-2 py-1 bg-white border border-slate-300 rounded font-mono font-bold text-slate-800 shadow-xs">F4</kbd>
-          </div>
-          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
-            <span class="font-medium text-slate-700">Save & Print Bill</span>
-            <kbd class="px-2 py-1 bg-emerald-600 text-white rounded font-mono font-bold shadow-xs">F8</kbd>
-          </div>
-          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
-            <span class="font-medium text-slate-700">Hold / Park Bill</span>
-            <kbd class="px-2 py-1 bg-white border border-slate-300 rounded font-mono font-bold text-slate-800 shadow-xs">F9</kbd>
-          </div>
-          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
-            <span class="font-medium text-slate-700">Add Item (Quick)</span>
-            <kbd class="px-2 py-1 bg-white border border-slate-300 rounded font-mono font-bold text-slate-800 shadow-xs">F3</kbd>
-          </div>
-          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
-            <span class="font-medium text-slate-700">Clear Search / Modal</span>
-            <kbd class="px-2 py-1 bg-white border border-slate-300 rounded font-mono font-bold text-slate-800 shadow-xs">Esc</kbd>
-          </div>
-        </div>
-
-        <div class="pt-3 border-t border-slate-100 flex justify-end">
-          <button
-            @click="showShortcutsModal = false"
-            class="px-4 py-2 bg-slate-900 text-white font-semibold text-xs rounded-xl hover:bg-slate-800 transition"
-          >
-            Got it (Esc)
-          </button>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -468,6 +415,7 @@ import {
   FileText,
   ShoppingBag,
   Package,
+  Boxes,
   Users,
   Wallet,
   ShieldCheck,
@@ -477,18 +425,16 @@ import {
   LogOut,
   Search,
   Printer,
-  HelpCircle,
-  X
+  Plus
 } from '@lucide/vue';
 
-const showShortcutsModal = ref(false);
 const currentLang = ref<'en' | 'ta'>('en');
 
 function toggleLang() {
   currentLang.value = currentLang.value === 'en' ? 'ta' : 'en';
 }
 
-function toggleStoreMenu() {
-  // branch selector
+function toggleBranchMenu() {
+  // branch switcher
 }
 </script>
