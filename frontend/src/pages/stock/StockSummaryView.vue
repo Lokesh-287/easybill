@@ -1334,6 +1334,17 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useToast } from '../../services/toast';
+import {
+  batches as batchList,
+  serials as serialList,
+  goodsReceiptNotes as grnList,
+  deliveryChallans as challanList,
+  stockLedger as ledgerEntries,
+  addBatch,
+  addSerials,
+  addGrn,
+  addDeliveryChallan
+} from '../../stores/documentStore';
 import FrappePrintFormatModal from '../../components/FrappePrintFormatModal.vue';
 import {
   Boxes,
@@ -1567,176 +1578,6 @@ const inventoryList = ref<StockItem[]>([
 ]);
 
 // -------------------------------------------------------------
-// BATCH REGISTER MOCK DATA (SCR-G4)
-// -------------------------------------------------------------
-const batchList = ref<BatchItem[]>([
-  {
-    batch_no: 'BAT-2026-P01',
-    item_code: 'MED-001',
-    item_name: 'Paracetamol 650mg',
-    category: 'Medicines',
-    warehouse: 'Shop Floor - EB',
-    mfg_date: '2026-01-10',
-    expiry_date: '2027-01-10',
-    days_left: 420,
-    qty: 45,
-    unit: 'Strip',
-    mrp: 35.00,
-    status: 'Fresh'
-  },
-  {
-    batch_no: 'BAT-2026-A02',
-    item_code: 'MED-003',
-    item_name: 'Amoxicillin 500mg',
-    category: 'Medicines',
-    warehouse: 'Stores - EB',
-    mfg_date: '2025-12-05',
-    expiry_date: '2026-12-05',
-    days_left: 19,
-    qty: 20,
-    unit: 'Strip',
-    mrp: 72.50,
-    status: 'Critical (<30d)'
-  },
-  {
-    batch_no: 'BAT-2026-C03',
-    item_code: 'MED-004',
-    item_name: 'Cetirizine 10mg',
-    category: 'Medicines',
-    warehouse: 'Shop Floor - EB',
-    mfg_date: '2025-06-01',
-    expiry_date: '2026-11-25',
-    days_left: 8,
-    qty: 12,
-    unit: 'Strip',
-    mrp: 18.00,
-    status: 'Critical (<30d)'
-  },
-  {
-    batch_no: 'BAT-2025-X04',
-    item_code: 'BAB-001',
-    item_name: 'Baby Gripe Water 130ml',
-    category: 'Baby Care',
-    warehouse: 'Stores - EB',
-    mfg_date: '2024-11-01',
-    expiry_date: '2025-11-01',
-    days_left: -15,
-    qty: 5,
-    unit: 'Bottle',
-    mrp: 48.00,
-    status: 'Expired'
-  }
-]);
-
-// -------------------------------------------------------------
-// SERIAL NUMBER / IMEI REGISTER (SCR-G5)
-// -------------------------------------------------------------
-const serialList = ref<SerialItem[]>([
-  {
-    serial_no: 'IMEI-984019284729101',
-    item_code: 'BAB-002',
-    item_name: 'Digital Thermometer',
-    warehouse: 'Shop Floor - EB',
-    inward_date: '2026-10-15',
-    warranty_months: 12,
-    warranty_expiry: '2027-10-15',
-    status: 'In Store'
-  },
-  {
-    serial_no: 'IMEI-984019284729102',
-    item_code: 'BAB-002',
-    item_name: 'Digital Thermometer',
-    warehouse: 'Shop Floor - EB',
-    inward_date: '2026-10-15',
-    warranty_months: 12,
-    warranty_expiry: '2027-10-15',
-    status: 'Sold'
-  },
-  {
-    serial_no: 'SN-OXY-2026-0041',
-    item_code: 'GEN-001',
-    item_name: 'N95 Protective Mask (Pack of 50)',
-    warehouse: 'Stores - EB',
-    inward_date: '2026-11-01',
-    warranty_months: 6,
-    warranty_expiry: '2027-05-01',
-    status: 'In Store'
-  },
-  {
-    serial_no: 'SN-NEB-2026-0082',
-    item_code: 'BAB-002',
-    item_name: 'Digital Thermometer Pro',
-    warehouse: 'Stores - EB',
-    inward_date: '2026-09-10',
-    warranty_months: 24,
-    warranty_expiry: '2028-09-10',
-    status: 'Under RMA'
-  }
-]);
-
-// -------------------------------------------------------------
-// GOODS RECEIPT NOTES (GRN) (SCR-F4)
-// -------------------------------------------------------------
-const grnList = ref<GoodsReceiptNote[]>([
-  {
-    grn_no: 'GRN-2026-0038',
-    supplier_name: 'Cipla Healthcare Ltd',
-    po_no: 'PO-2026-081',
-    vehicle_no: 'TN 37 CZ 8921',
-    transporter: 'VRL Logistics',
-    date: '16-11-2026',
-    received_qty: 65,
-    accepted_qty: 65,
-    rejected_qty: 0,
-    total_value: 1890.00,
-    status: 'Accepted'
-  },
-  {
-    grn_no: 'GRN-2026-0039',
-    supplier_name: 'Apollo Surgicals Ltd',
-    po_no: 'PO-2026-084',
-    vehicle_no: 'TN 38 CJ 4410',
-    transporter: 'TCI Freight',
-    date: '15-11-2026',
-    received_qty: 100,
-    accepted_qty: 95,
-    rejected_qty: 5,
-    total_value: 1140.00,
-    status: 'Partial Rejection'
-  }
-]);
-
-// -------------------------------------------------------------
-// DELIVERY CHALLANS (SCR-E7)
-// -------------------------------------------------------------
-const challanList = ref<DeliveryChallan[]>([
-  {
-    challan_no: 'DC-2026-0019',
-    customer_name: 'Murugan Traders',
-    invoice_ref: 'INV-2026-0041',
-    source_warehouse: 'Stores - EB',
-    vehicle_no: 'TN 38 AF 9012',
-    transporter: 'Direct Van Delivery',
-    date: '16-11-2026',
-    total_qty: 45,
-    status: 'Dispatched',
-    items: [{ code: 'MED-001', name: 'Paracetamol 650mg', qty: 45, unit: 'Strip', price: 35.00 }]
-  },
-  {
-    challan_no: 'DC-2026-0020',
-    customer_name: 'Annapoorna Retail',
-    invoice_ref: 'INV-2026-0035',
-    source_warehouse: 'Shop Floor - EB',
-    vehicle_no: 'TN 37 B 5519',
-    transporter: 'Store Bike Courier',
-    date: '15-11-2026',
-    total_qty: 12,
-    status: 'Delivered',
-    items: [{ code: 'BAB-001', name: 'Baby Gripe Water 130ml', qty: 12, unit: 'Bottle', price: 48.00 }]
-  }
-]);
-
-// -------------------------------------------------------------
 // PHYSICAL AUDIT SHEET (SCR-G2)
 // -------------------------------------------------------------
 const auditWarehouse = ref('Shop Floor - EB');
@@ -1878,51 +1719,6 @@ const filteredChallans = computed(() => {
     return c.challan_no.toLowerCase().includes(q) || c.customer_name.toLowerCase().includes(q) || c.invoice_ref.toLowerCase().includes(q);
   });
 });
-
-const ledgerEntries = ref<LedgerEntry[]>([
-  {
-    id: 'LED-001',
-    item_code: 'MED-001',
-    item_name: 'Paracetamol 650mg',
-    date: '16-11-2026 14:30',
-    voucher_type: 'Sales Invoice',
-    voucher_no: 'INV-2026-0042',
-    warehouse: 'Shop Floor - EB',
-    inward_qty: 0,
-    outward_qty: 2,
-    balance_qty: 45,
-    valuation_rate: 22.00,
-    remarks: 'POS Checkout LK'
-  },
-  {
-    id: 'LED-002',
-    item_code: 'MED-001',
-    item_name: 'Paracetamol 650mg',
-    date: '16-11-2026 10:15',
-    voucher_type: 'Stock Transfer',
-    voucher_no: 'TR-2026-0018',
-    warehouse: 'Shop Floor - EB',
-    inward_qty: 20,
-    outward_qty: 0,
-    balance_qty: 47,
-    valuation_rate: 22.00,
-    remarks: 'Replenished from Stores - EB'
-  },
-  {
-    id: 'LED-003',
-    item_code: 'MED-001',
-    item_name: 'Paracetamol 650mg',
-    date: '14-11-2026 16:00',
-    voucher_type: 'Goods Receipt Note',
-    voucher_no: 'GRN-2026-0038',
-    warehouse: 'Stores - EB',
-    inward_qty: 50,
-    outward_qty: 0,
-    balance_qty: 27,
-    valuation_rate: 22.00,
-    remarks: 'Supplier Inward Cipla PO-2026-081'
-  }
-]);
 
 // Summary Filters & Metrics
 const uniqueCategories = computed(() => {
@@ -2108,7 +1904,7 @@ function submitNewBatch() {
   const exp = new Date(newBatchForm.value.expiry_date);
   const diffDays = Math.ceil((exp.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
-  batchList.value.unshift({
+  addBatch({
     batch_no: newBatchForm.value.batch_no.toUpperCase(),
     item_code: newBatchForm.value.item_code,
     item_name: item ? item.item_name : 'New Item',
@@ -2177,7 +1973,7 @@ function submitNewGrn() {
   const itm = inventoryList.value.find(i => i.item_code === newGrnForm.value.item_code);
   const totalVal = (itm ? itm.valuation_rate : 20) * newGrnForm.value.accepted_qty;
 
-  grnList.value.unshift({
+  addGrn({
     grn_no: grnNo,
     supplier_name: newGrnForm.value.supplier_name,
     po_no: newGrnForm.value.po_no || 'PO-2026-DIRECT',
@@ -2210,7 +2006,7 @@ function submitNewChallan() {
   const challanNo = 'DC-2026-' + Math.floor(1000 + Math.random() * 9000);
   const itm = inventoryList.value.find(i => i.item_code === newChallanForm.value.item_code);
 
-  challanList.value.unshift({
+  addDeliveryChallan({
     challan_no: challanNo,
     customer_name: newChallanForm.value.customer_name,
     invoice_ref: newChallanForm.value.invoice_ref || 'SO-2026-DISP',

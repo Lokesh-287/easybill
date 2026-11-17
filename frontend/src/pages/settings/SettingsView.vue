@@ -387,6 +387,81 @@
           </div>
         </div>
 
+        <!-- TAB: DATA RESET & TESTING -->
+        <div v-if="activeTab === 'data'" class="p-6 space-y-6">
+          <div class="border-b border-slate-100 pb-3 flex items-center justify-between">
+            <div>
+              <h3 class="text-xs font-extrabold text-slate-900">Document Data Management & Flow Testing</h3>
+              <p class="text-[11px] text-slate-400">Clear all transactional documents to manually test the end-to-end retail ERP flow</p>
+            </div>
+            <span class="px-2.5 py-1 bg-amber-50 text-amber-700 font-mono text-[10px] font-bold rounded-lg border border-amber-200">
+              Clean Testing Slate
+            </span>
+          </div>
+
+          <!-- Live Document Counters -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+              <div class="text-[10px] font-bold text-slate-400 uppercase">Sales Invoices</div>
+              <div class="text-lg font-extrabold text-slate-900 mt-0.5 font-mono">{{ docStore.invoices.value.length }}</div>
+              <div class="text-[10px] text-slate-500">Retail bills created</div>
+            </div>
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+              <div class="text-[10px] font-bold text-slate-400 uppercase">Purchase Bills</div>
+              <div class="text-lg font-extrabold text-slate-900 mt-0.5 font-mono">{{ docStore.purchaseBills.value.length }}</div>
+              <div class="text-[10px] text-slate-500">Vendor inward invoices</div>
+            </div>
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+              <div class="text-[10px] font-bold text-slate-400 uppercase">Goods Receipt Notes</div>
+              <div class="text-lg font-extrabold text-slate-900 mt-0.5 font-mono">{{ docStore.goodsReceiptNotes.value.length }}</div>
+              <div class="text-[10px] text-slate-500">Gate entries</div>
+            </div>
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+              <div class="text-[10px] font-bold text-slate-400 uppercase">Delivery Challans</div>
+              <div class="text-lg font-extrabold text-slate-900 mt-0.5 font-mono">{{ docStore.deliveryChallans.value.length }}</div>
+              <div class="text-[10px] text-slate-500">Outward dispatch notes</div>
+            </div>
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+              <div class="text-[10px] font-bold text-slate-400 uppercase">Stock Movements</div>
+              <div class="text-lg font-extrabold text-slate-900 mt-0.5 font-mono">{{ docStore.stockLedger.value.length }}</div>
+              <div class="text-[10px] text-slate-500">Ledger audit entries</div>
+            </div>
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+              <div class="text-[10px] font-bold text-slate-400 uppercase">Day Book Transactions</div>
+              <div class="text-lg font-extrabold text-slate-900 mt-0.5 font-mono">{{ docStore.dayBook.value.transactions.length }}</div>
+              <div class="text-[10px] text-slate-500">Cash drawer movements</div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="p-4 bg-rose-50/50 rounded-2xl border border-rose-200 space-y-3">
+            <div class="flex items-center space-x-2 text-rose-800 font-bold text-xs">
+              <Trash2 class="w-4 h-4 text-rose-600" />
+              <span>Reset & Clear Document Data</span>
+            </div>
+            <p class="text-xs text-rose-700/80 leading-relaxed">
+              Clears all invoices, purchases, GRNs, delivery challans, stock ledger movements, and resets the cash drawer to opening float. <strong>Master data (Products and Customers) are preserved</strong> so you can test billing and purchasing immediately.
+            </p>
+            <div class="flex flex-wrap items-center gap-3 pt-2">
+              <button
+                @click="handleClearData"
+                class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center space-x-1.5"
+              >
+                <Trash2 class="w-3.5 h-3.5" />
+                <span>Clear All Document Data (Start Fresh)</span>
+              </button>
+
+              <button
+                @click="handleLoadDemo"
+                class="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs rounded-xl border border-slate-200 shadow-2xs transition flex items-center space-x-1.5"
+              >
+                <RefreshCw class="w-3.5 h-3.5 text-slate-500" />
+                <span>Reload Demo Dataset</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
         <!-- TAB 5: USERS & ROLE PERMISSIONS RBAC (SCR-B3) -->
         <div v-if="activeTab === 'users'" class="p-6 space-y-6">
           <div class="flex items-center justify-between border-b border-slate-100 pb-4">
@@ -688,6 +763,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useToast } from '../../services/toast';
+import * as docStore from '../../stores/documentStore';
 import {
   Printer,
   CheckCircle2,
@@ -698,6 +774,7 @@ import {
   Edit,
   ShieldCheck,
   Lock,
+  RefreshCw,
   X
 } from '@lucide/vue';
 
@@ -715,8 +792,21 @@ const settingsTabs = [
   { id: 'users', label: 'Users & Permissions RBAC (SCR-B3)' },
   { id: 'hardware', label: 'Thermal Printer & POS (SCR-L1)' },
   { id: 'tax', label: 'Tax Rules' },
+  { id: 'data', label: 'Data Reset & Testing' },
   { id: 'system', label: 'System & Backup' }
 ];
+
+function handleClearData() {
+  if (confirm('Are you sure you want to clear all document data? This will wipe all invoices, purchases, GRNs, delivery challans, and stock transactions.')) {
+    docStore.clearAllDocumentData();
+    toast.success('Document Data Cleared', 'All transactional documents have been cleared. You can now test the flow from scratch.');
+  }
+}
+
+function handleLoadDemo() {
+  docStore.loadDemoData();
+  toast.success('Demo Dataset Loaded', 'Sample transactions and document history restored.');
+}
 
 const userForm = ref({
   id: '',

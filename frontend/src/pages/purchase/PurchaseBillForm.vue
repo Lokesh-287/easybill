@@ -558,6 +558,7 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from '../../services/toast';
+import { addPurchaseBill } from '../../stores/documentStore';
 import {
   ArrowLeft,
   CheckCircle2,
@@ -840,19 +841,48 @@ async function savePurchaseBill(inwardStock = true) {
       body: JSON.stringify({ data: JSON.stringify(payload) })
     });
 
-    if (res.ok) {
-      const data = await res.json();
-      if (data.message && data.message.ok) {
-        toast.success(`Purchase Bill ${form.value.supplier_bill_no} saved and stock inwarded`);
-        router.push('/purchase');
-        return;
-      }
-    }
+    // Persist to central document store
+    addPurchaseBill({
+      id: 'PUR-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000),
+      supplier_bill_no: form.value.supplier_bill_no,
+      supplier_id: form.value.supplier_id,
+      supplier_name: form.value.supplier_name,
+      supplier_gstin: selectedSupplierObj.value?.gstin || '',
+      supplier_state: selectedSupplierObj.value?.state || 'Tamil Nadu (33)',
+      bill_date: form.value.bill_date,
+      due_date: form.value.bill_date,
+      taxable_amount: taxableSubtotal.value,
+      cgst: isInterState.value ? 0 : totalTax.value / 2,
+      sgst: isInterState.value ? 0 : totalTax.value / 2,
+      igst: isInterState.value ? totalTax.value : 0,
+      total_tax: totalTax.value,
+      round_off: 0,
+      grand_total: grandTotal.value,
+      paid_amount: form.value.payment_mode === 'Credit' ? 0 : (form.value.amount_paid || grandTotal.value),
+      outstanding_amount: form.value.payment_mode === 'Credit' ? grandTotal.value : 0,
+      payment_status: form.value.payment_mode === 'Credit' ? 'Unpaid' : 'Paid',
+      payment_mode: form.value.payment_mode,
+      stock_updated: inwardStock,
+      warehouse: form.value.warehouse,
+      is_return: false,
+      items: form.value.items.map(i => ({
+        item_code: i.item_code,
+        item_name: i.item_name,
+        hsn: i.hsn,
+        qty: i.qty,
+        uom: i.uom,
+        rate: i.rate,
+        amount: i.qty * i.rate,
+        gst_rate: i.gst_rate,
+        batch_no: i.batch_no,
+        expiry_date: i.expiry_date
+      }))
+    });
+
+    toast.success(`Purchase Bill ${form.value.supplier_bill_no} saved successfully`);
+    router.push('/purchase');
   } catch (err) {
     console.error('API create_purchase_bill failed:', err);
   }
-
-  toast.success(`Purchase Bill ${form.value.supplier_bill_no} saved successfully`);
-  router.push('/purchase');
 }
 </script>

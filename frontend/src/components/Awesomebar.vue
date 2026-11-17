@@ -110,6 +110,7 @@
 import { ref, computed, nextTick, onMounted, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from '../services/toast';
+import { clearAllDocumentData, loadDemoData } from '../stores/documentStore';
 import {
   Search,
   Receipt,
@@ -135,7 +136,9 @@ import {
   Truck,
   SendHorizontal,
   ClipboardCheck,
-  ArrowLeftRight
+  ArrowLeftRight,
+  Trash2,
+  RefreshCw
 } from '@lucide/vue';
 
 const router = useRouter();
@@ -186,6 +189,8 @@ const commandGroups = [
       { id: 'act-new-challan', label: 'Issue Delivery Challan', subtitle: 'Generate dispatch note', icon: SendHorizontal, route: '/stock?tab=challan&action=new_challan' },
       { id: 'act-close-day', label: 'Shift / Day Close Register', subtitle: 'Lock cash counter', icon: Lock, route: '/cash' },
       { id: 'act-test-print', label: 'Test Print 80mm Slip', subtitle: 'Trigger thermal printer', icon: Printer, action: () => testPrint() },
+      { id: 'act-clear-data', label: 'Clear All Document Data (Reset for Testing)', subtitle: 'Wipe all bills, purchases, stock ledger to start fresh', icon: Trash2, action: () => clearDataAction() },
+      { id: 'act-load-demo', label: 'Reload Demo Dataset', subtitle: 'Restore sample invoices and bills', icon: RefreshCw, action: () => loadDemoAction() },
     ]
   },
   {
@@ -269,6 +274,18 @@ function executeItem(item: any) {
 
 function testPrint() {
   toast.success('Thermal Printer: Test slip sent to 80mm ESC/POS printer (RP3200)');
+}
+
+function clearDataAction() {
+  if (confirm('Clear all document data? All sales bills, purchases, GRNs, challans, and day book logs will be reset.')) {
+    clearAllDocumentData();
+    toast.success('Document Data Cleared', 'All document records wiped. Clean slate ready for manual testing.');
+  }
+}
+
+function loadDemoAction() {
+  loadDemoData();
+  toast.success('Demo Dataset Loaded', 'Sample transactions and documents restored.');
 }
 
 function open() {

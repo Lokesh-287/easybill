@@ -656,6 +656,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useToast } from '../../services/toast';
+import { purchaseBills } from '../../stores/documentStore';
 import {
   ShoppingBag,
   ArrowUpRight,
@@ -730,125 +731,8 @@ const returnForm = ref({
   refund_mode: 'Debit Note'
 });
 
-// Seed Initial List
-const billsList = ref<PurchaseBill[]>([
-  {
-    id: "PUR-2026-0001",
-    supplier_bill_no: "INV-88912",
-    supplier_id: "SUPP-001",
-    supplier_name: "MediPharma Distributors",
-    supplier_gstin: "33AABCM5678H1Z4",
-    supplier_state: "Tamil Nadu (33)",
-    bill_date: "2026-11-15",
-    due_date: "2026-11-30",
-    taxable_amount: 16500.00,
-    cgst: 990.00,
-    sgst: 990.00,
-    igst: 0.00,
-    total_tax: 1980.00,
-    round_off: 0.00,
-    grand_total: 18480.00,
-    paid_amount: 18480.00,
-    outstanding_amount: 0.00,
-    payment_status: "Paid",
-    payment_mode: "Bank Transfer",
-    stock_updated: true,
-    warehouse: "Stores - EB",
-    is_return: false,
-    items: [
-      { item_code: "MED-001", item_name: "Paracetamol 650mg", hsn: "300490", qty: 500, uom: "Strip", rate: 22.00, amount: 11000.00, gst_rate: 12, batch_no: "BAT-26K01", expiry_date: "2027-10-31" },
-      { item_code: "MED-002", item_name: "Amoxicillin 500mg", hsn: "300410", qty: 100, uom: "Strip", rate: 48.00, amount: 4800.00, gst_rate: 12, batch_no: "BAT-26K02", expiry_date: "2027-12-31" },
-      { item_code: "MED-003", item_name: "Cetirizine 10mg", hsn: "300490", qty: 70, uom: "Strip", rate: 10.00, amount: 700.00, gst_rate: 12, batch_no: "BAT-26K03", expiry_date: "2028-02-28" }
-    ]
-  },
-  {
-    id: "PUR-2026-0002",
-    supplier_bill_no: "SUP-4491",
-    supplier_id: "SUPP-002",
-    supplier_name: "Apex Health Supplies",
-    supplier_gstin: "33AABCA4321J1Z8",
-    supplier_state: "Tamil Nadu (33)",
-    bill_date: "2026-11-14",
-    due_date: "2026-11-29",
-    taxable_amount: 11400.00,
-    cgst: 600.00,
-    sgst: 600.00,
-    igst: 0.00,
-    total_tax: 1200.00,
-    round_off: 0.00,
-    grand_total: 12600.00,
-    paid_amount: 0.00,
-    outstanding_amount: 12600.00,
-    payment_status: "Unpaid",
-    payment_mode: "Credit",
-    stock_updated: true,
-    warehouse: "Stores - EB",
-    is_return: false,
-    items: [
-      { item_code: "GEN-001", item_name: "N95 Protective Mask", hsn: "630790", qty: 400, uom: "Pcs", rate: 14.00, amount: 5600.00, gst_rate: 5 },
-      { item_code: "PER-001", item_name: "Dettol Antiseptic 100ml", hsn: "380894", qty: 100, uom: "Bottle", rate: 49.00, amount: 4900.00, gst_rate: 18, batch_no: "DET-881", expiry_date: "2028-06-30" },
-      { item_code: "GEN-002", item_name: "Cotton Roll 100g", hsn: "300590", qty: 35, uom: "Roll", rate: 26.00, amount: 910.00, gst_rate: 5 }
-    ]
-  },
-  {
-    id: "PUR-2026-0003",
-    supplier_bill_no: "APX-2026-901",
-    supplier_id: "SUPP-003",
-    supplier_name: "South India Drug House",
-    supplier_gstin: "33AABCS8765K1Z9",
-    supplier_state: "Tamil Nadu (33)",
-    bill_date: "2026-11-12",
-    due_date: "2026-11-27",
-    taxable_amount: 21875.00,
-    cgst: 1312.50,
-    sgst: 1312.50,
-    igst: 0.00,
-    total_tax: 2625.00,
-    round_off: 0.00,
-    grand_total: 24500.00,
-    paid_amount: 10000.00,
-    outstanding_amount: 14500.00,
-    payment_status: "Partial",
-    payment_mode: "UPI / Bank",
-    stock_updated: true,
-    warehouse: "Stores - EB",
-    is_return: false,
-    items: [
-      { item_code: "GEN-003", item_name: "Surgical Gloves Latex (Box of 50)", hsn: "401511", qty: 50, uom: "Box", rate: 210.00, amount: 10500.00, gst_rate: 12, batch_no: "GLV-901", expiry_date: "2029-01-31" },
-      { item_code: "BAB-002", item_name: "Digital Thermometer", hsn: "902519", qty: 50, uom: "Pcs", rate: 115.00, amount: 5750.00, gst_rate: 18 },
-      { item_code: "GEN-004", item_name: "Hand Sanitizer 500ml", hsn: "380894", qty: 65, uom: "Bottle", rate: 85.00, amount: 5525.00, gst_rate: 18, batch_no: "SAN-221", expiry_date: "2027-08-31" }
-    ]
-  },
-  {
-    id: "PUR-2026-0004",
-    supplier_bill_no: "RET-DRG-11",
-    supplier_id: "SUPP-003",
-    supplier_name: "South India Drug House",
-    supplier_gstin: "33AABCS8765K1Z9",
-    supplier_state: "Tamil Nadu (33)",
-    bill_date: "2026-11-13",
-    due_date: "2026-11-13",
-    taxable_amount: -2857.14,
-    cgst: -171.43,
-    sgst: -171.43,
-    igst: 0.00,
-    total_tax: -342.86,
-    round_off: 0.00,
-    grand_total: -3200.00,
-    paid_amount: -3200.00,
-    outstanding_amount: 0.00,
-    payment_status: "Debit Note",
-    payment_mode: "Credit Adjustment",
-    stock_updated: true,
-    warehouse: "Stores - EB",
-    is_return: true,
-    return_against: "PUR-2026-0003",
-    return_reason: "Damaged in Transit",
-    items: [
-      { item_code: "GEN-004", item_name: "Hand Sanitizer 500ml", hsn: "380894", qty: -32, uom: "Bottle", rate: 85.00, amount: -2720.00, gst_rate: 18 }
-    ]
-  }
-]);
+// Reactive Bills List from Central Document Store
+const billsList = purchaseBills;
 
 // Computed
 const uniqueSuppliers = computed(() => {
@@ -1035,6 +919,9 @@ function exportPurchasesCSV() {
 
 // Fetch from API if available
 onMounted(async () => {
+  if (localStorage.getItem('easybill_docs_cleared') === 'true') {
+    return;
+  }
   try {
     const res = await fetch('/api/method/easybill.api.v1.purchase.list_purchases');
     if (res.ok) {

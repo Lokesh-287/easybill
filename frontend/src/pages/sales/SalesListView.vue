@@ -549,6 +549,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useToast } from '../../services/toast';
+import { invoices, type Invoice } from '../../stores/documentStore';
 import FrappePrintFormatModal from '../../components/FrappePrintFormatModal.vue';
 import {
   Plus,
@@ -606,119 +607,11 @@ const returnForm = ref({
 });
 
 // Status Tabs
-const statusTabs = ref([
-  { id: 'all', name: 'All Invoices', count: 6 },
-  { id: 'Paid', name: 'Paid', count: 4 },
-  { id: 'Pending', name: 'Pending', count: 1 },
-  { id: 'Overdue', name: 'Overdue', count: 1 },
-]);
-
-// Mock Invoices
-const invoices = ref<Invoice[]>([
-  {
-    id: 'inv-1',
-    number: 'INV-2026-0042',
-    customerName: 'Walk-in Customer',
-    customerPhone: 'Cash Sale',
-    date: '16 Nov 2026',
-    time: '11:15 AM',
-    paymentMode: 'Cash',
-    taxable: 151.04,
-    tax: 16.96,
-    grandTotal: 168.00,
-    status: 'Paid',
-    items: [
-      { name: 'Paracetamol 650mg', qty: 2, rate: 35.00, gstRate: 12 },
-      { name: 'Amoxicillin 500mg', qty: 1, rate: 72.50, gstRate: 12 },
-      { name: 'N95 Protective Mask', qty: 1, rate: 25.00, gstRate: 5 }
-    ]
-  },
-  {
-    id: 'inv-2',
-    number: 'INV-2026-0041',
-    customerName: 'Ramesh Kumar (Retail)',
-    customerPhone: '9842109876',
-    date: '16 Nov 2026',
-    time: '10:45 AM',
-    paymentMode: 'UPI',
-    taxable: 450.00,
-    tax: 54.00,
-    grandTotal: 504.00,
-    status: 'Paid',
-    items: [
-      { name: 'Digital Thermometer', qty: 2, rate: 180.00, gstRate: 18 },
-      { name: 'Dettol Antiseptic 100ml', qty: 2, rate: 65.00, gstRate: 18 }
-    ]
-  },
-  {
-    id: 'inv-3',
-    number: 'INV-2026-0040',
-    customerName: 'Priya Traders',
-    customerPhone: '9443211223',
-    customerGstin: '33AABCP1234F1Z1',
-    date: '15 Nov 2026',
-    time: '06:30 PM',
-    paymentMode: 'Khata',
-    taxable: 4200.00,
-    tax: 504.00,
-    grandTotal: 4704.00,
-    status: 'Pending',
-    items: [
-      { name: 'Cetirizine 10mg Box', qty: 20, rate: 180.00, gstRate: 12 },
-      { name: 'Baby Gripe Water 130ml', qty: 10, rate: 48.00, gstRate: 12 }
-    ]
-  },
-  {
-    id: 'inv-4',
-    number: 'INV-2026-0039',
-    customerName: 'Kumar Medicals',
-    customerPhone: '9789123456',
-    customerGstin: '33AABCK9988G1Z2',
-    date: '14 Nov 2026',
-    time: '04:15 PM',
-    paymentMode: 'Card',
-    taxable: 12000.00,
-    tax: 1440.00,
-    grandTotal: 13440.00,
-    status: 'Paid',
-    items: [
-      { name: 'Surgical Gloves Box', qty: 15, rate: 450.00, gstRate: 12 },
-      { name: 'Cotton Roll 100g Bundle', qty: 100, rate: 38.00, gstRate: 5 }
-    ]
-  },
-  {
-    id: 'inv-5',
-    number: 'INV-2026-0038',
-    customerName: 'Anand Sundaram',
-    customerPhone: '9840011223',
-    date: '02 Nov 2026',
-    time: '01:20 PM',
-    paymentMode: 'Khata',
-    taxable: 2100.00,
-    tax: 252.00,
-    grandTotal: 2352.00,
-    status: 'Overdue',
-    items: [
-      { name: 'First Aid Kit Complete', qty: 3, rate: 700.00, gstRate: 12 }
-    ]
-  },
-  {
-    id: 'inv-6',
-    number: 'INV-2026-0037',
-    customerName: 'Walk-in Customer',
-    customerPhone: 'Cash Sale',
-    date: '01 Nov 2026',
-    time: '11:00 AM',
-    paymentMode: 'Cash',
-    taxable: 110.00,
-    tax: 12.00,
-    grandTotal: 122.00,
-    status: 'Paid',
-    items: [
-      { name: 'Dettol Antiseptic 100ml', qty: 1, rate: 65.00, gstRate: 18 },
-      { name: 'Cotton Roll 100g', qty: 1, rate: 40.00, gstRate: 5 }
-    ]
-  }
+const statusTabs = computed(() => [
+  { id: 'all', name: 'All Invoices', count: invoices.value.length },
+  { id: 'Paid', name: 'Paid', count: invoices.value.filter(i => i.status === 'Paid').length },
+  { id: 'Pending', name: 'Pending', count: invoices.value.filter(i => i.status === 'Pending').length },
+  { id: 'Overdue', name: 'Overdue', count: invoices.value.filter(i => i.status === 'Overdue').length },
 ]);
 
 // Computed KPI Metrics

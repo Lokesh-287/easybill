@@ -506,6 +506,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useToast } from '../../services/toast';
+import { dayBook, addCashExpense } from '../../stores/documentStore';
 import {
   Banknote,
   ArrowDownLeft,
@@ -587,27 +588,6 @@ const denomCounts = ref<Record<number, number>>({
   1: 0
 });
 
-// Seed Day Book
-const dayBook = ref<DayBookData>({
-  date: new Date().toISOString().split('T')[0],
-  opening_cash: 5000.00,
-  cash_in: 18450.00,
-  cash_out: 3200.00,
-  expected_cash: 20250.00,
-  counted_cash: 20250.00,
-  variance: 0.00,
-  status: 'Open',
-  transactions: [
-    { id: "TXN-001", time: "09:00 AM", type: "Opening Balance", category: "Float", party: "Shift Opening Float", inflow: 5000.00, outflow: 0.00, running_balance: 5000.00, ref_no: "OPEN-01" },
-    { id: "TXN-002", time: "10:15 AM", type: "Cash Sale", category: "Sales Invoice", party: "Walk-in Customer", inflow: 420.00, outflow: 0.00, running_balance: 5420.00, ref_no: "INV-2026-0001" },
-    { id: "TXN-003", time: "11:30 AM", type: "Petty Expense", category: "Tea & Snacks", party: "Morning Staff Refreshments", inflow: 0.00, outflow: 120.00, running_balance: 5300.00, ref_no: "EXP-2026-01" },
-    { id: "TXN-004", time: "12:45 PM", type: "Debt Collection", category: "Khata Receipt", party: "Ramesh Kumar (Retail)", inflow: 2500.00, outflow: 0.00, running_balance: 7800.00, ref_no: "REC-2026-0001" },
-    { id: "TXN-005", time: "02:10 PM", type: "Supplier Payout", category: "Transport", party: "Fast Track Logistics (Freight)", inflow: 0.00, outflow: 850.00, running_balance: 6950.00, ref_no: "PAY-2026-01" },
-    { id: "TXN-006", time: "03:40 PM", type: "Cash Sale", category: "Sales Invoice", party: "Walk-in Customer", inflow: 15530.00, outflow: 0.00, running_balance: 22480.00, ref_no: "INV-2026-0005" },
-    { id: "TXN-007", time: "04:20 PM", type: "Petty Expense", category: "Packaging Material", party: "Carry Bags & Tape Roll", inflow: 0.00, outflow: 2230.00, running_balance: 20250.00, ref_no: "EXP-2026-02" }
-  ]
-});
-
 // Computed
 const filterTabs = computed(() => [
   { id: 'all', label: 'All Transactions', count: dayBook.value.transactions.length },
@@ -667,8 +647,15 @@ async function submitExpense() {
     return;
   }
 
+  addCashExpense({
+    category: expenseForm.value.category,
+    amount: expenseForm.value.amount,
+    party: expenseForm.value.party || expenseForm.value.category,
+    notes: expenseForm.value.notes
+  });
+
   try {
-    const res = await fetch('/api/method/easybill.api.v1.cash.add_expense', {
+    await fetch('/api/method/easybill.api.v1.cash.add_expense', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -679,39 +666,12 @@ async function submitExpense() {
         notes: expenseForm.value.notes
       })
     });
-    if (res.ok) {
-      const data = await res.json();
-      if (data.message && data.message.data) {
-        dayBook.value = data.message.data.day_book;
-        showExpenseModal.value = false;
-        toast.success('Expense Recorded', `₹${formatMoney(expenseForm.value.amount)} paid for ${expenseForm.value.category}`);
-        return;
-      }
-    }
   } catch (err) {
     console.log('Expense local fallback');
   }
 
-  // Local fallback
-  const amount = expenseForm.value.amount;
-  dayBook.value.cash_out += amount;
-  dayBook.value.expected_cash = dayBook.value.opening_cash + dayBook.value.cash_in - dayBook.value.cash_out;
-
-  dayBook.value.transactions.push({
-    id: `TXN-00${dayBook.value.transactions.length + 1}`,
-    time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
-    type: 'Petty Expense',
-    category: expenseForm.value.category,
-    party: expenseForm.value.party || expenseForm.value.category,
-    inflow: 0.00,
-    outflow: amount,
-    running_balance: dayBook.value.expected_cash,
-    ref_no: `EXP-${Date.now().toString().slice(-4)}`,
-    notes: expenseForm.value.notes
-  });
-
   showExpenseModal.value = false;
-  toast.success('Expense Recorded', `₹${formatMoney(amount)} logged in Day Book`);
+  toast.success('Expense Recorded', `₹${formatMoney(expenseForm.value.amount)} logged in Day Book`);
 }
 
 async function submitDayClose() {
@@ -767,6 +727,9 @@ function exportDayBookCSV() {
 }
 
 onMounted(async () => {
+  if (localStorage.getItem('easybill_docs_cleared') === 'true') {
+    return;
+  }
   try {
     const res = await fetch('/api/method/easybill.api.v1.cash.get_day_book');
     if (res.ok) {

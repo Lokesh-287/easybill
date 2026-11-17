@@ -1004,6 +1004,7 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useToast } from '../../services/toast';
 import { bluetoothPrinter } from '../../services/bluetoothPrinter';
+import { addInvoice } from '../../stores/documentStore';
 import CameraBarcodeScanner from '../../components/CameraBarcodeScanner.vue';
 import FrappePrintFormatModal from '../../components/FrappePrintFormatModal.vue';
 import {
@@ -1660,6 +1661,31 @@ function completeAndPrintBill() {
 
   lastBill.value = completedBill;
   previewInvoice.value = completedBill;
+
+  // Persist invoice to central document store
+  addInvoice({
+    id: 'inv-' + Date.now(),
+    number: billNo,
+    customerName: currentCustomer.value.name,
+    customerPhone: currentCustomer.value.phone,
+    customerGstin: currentCustomer.value.gstin,
+    date: new Date().toLocaleDateString('en-IN'),
+    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    paymentMode: selectedPaymentMode.value === 'cash' ? 'Cash' : selectedPaymentMode.value === 'upi' ? 'UPI' : selectedPaymentMode.value === 'card' ? 'Card' : 'Khata',
+    taxable: taxableSubtotal.value,
+    tax: totalTax.value,
+    grandTotal: roundedGrandTotal.value,
+    status: 'Paid',
+    items: cart.value.map(c => ({
+      name: c.name,
+      qty: c.qty,
+      rate: c.price,
+      gstRate: c.gst_rate || 12,
+      hsn: c.hsn || '300490',
+      item_code: c.code || 'MED-001'
+    }))
+  });
+
   showPrintFormatModal.value = true;
   showReceiptModal.value = true;
   cart.value = [];
