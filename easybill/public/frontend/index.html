@@ -5,13 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>EasyBill — GST Billing & POS</title>
     <!-- PWA Web App Manifest -->
-    <link rel="manifest" href="/assets/easybill/frontend/manifest.json" />
+    <link rel="manifest" href="./manifest.json" />
     <meta name="theme-color" content="#4f46e5" />
-    <!-- Apple iOS PWA Support -->
+    <!-- Mobile PWA Support -->
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="EasyBill POS" />
-    <link rel="apple-touch-icon" href="/assets/easybill/frontend/pwa-icon-192.svg" />
+    <link rel="apple-touch-icon" href="./pwa-icon-192.svg" />
     <script type="module" crossorigin src="/assets/easybill/frontend/assets/index-Dwqgh7Za.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/easybill/frontend/assets/index-cz16e3CJ.css">
   </head>
@@ -20,7 +21,7 @@
     <script>
       if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/assets/easybill/frontend/sw.js').catch(() => {});
+          navigator.serviceWorker.register('./sw.js').catch(() => {});
         });
       }
     </script>

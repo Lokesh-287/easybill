@@ -1,0 +1,5 @@
+{
+  "buildCommand": "cd frontend && npm install && VITE_BASE_PATH=/ VITE_OUT_DIR=../dist npm run build",
+  "outputDirectory": "dist",
+  "framework": "vite"
+}

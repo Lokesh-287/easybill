@@ -3,7 +3,7 @@ import vue from '@vitejs/plugin-vue';
 import path from 'path';
 
 export default defineConfig(({ command }) => ({
-  base: command === 'build' ? '/assets/easybill/frontend/' : '/',
+  base: process.env.VITE_BASE_PATH || (command === 'build' ? '/assets/easybill/frontend/' : '/'),
   plugins: [vue()],
   resolve: {
     alias: {
@@ -11,7 +11,7 @@ export default defineConfig(({ command }) => ({
     },
   },
   build: {
-    outDir: '../easybill/public/frontend',
+    outDir: process.env.VITE_OUT_DIR || '../easybill/public/frontend',
     emptyOutDir: true,
   },
   server: {
