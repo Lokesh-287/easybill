@@ -129,7 +129,13 @@ import {
   SlidersHorizontal,
   Lock,
   Compass,
-  Crown
+  Crown,
+  CalendarClock,
+  Cpu,
+  Truck,
+  SendHorizontal,
+  ClipboardCheck,
+  ArrowLeftRight
 } from '@lucide/vue';
 
 const router = useRouter();
@@ -152,6 +158,11 @@ const commandGroups = [
       { id: 'nav-items', label: 'Item Master Catalog', subtitle: 'Manage prices & HSN', icon: Package, route: '/items' },
       { id: 'nav-parties', label: 'Customers & Vendors', subtitle: 'Khata ledger & credit', icon: Users, route: '/parties' },
       { id: 'nav-stock', label: 'Stock Summary & Valuation', subtitle: 'Inventory counts & FIFO', icon: Boxes, route: '/stock' },
+      { id: 'nav-batches', label: 'Batch & Expiry (FEFO)', subtitle: 'Medicine lots & shelf life', icon: CalendarClock, route: '/stock?tab=batches' },
+      { id: 'nav-serials', label: 'Serial & IMEI Tracker', subtitle: 'Electronic devices & warranty', icon: Cpu, route: '/stock?tab=serials' },
+      { id: 'nav-grn', label: 'Goods Receipt Note (GRN)', subtitle: 'Gate inward & PO verification', icon: Truck, route: '/stock?tab=grn' },
+      { id: 'nav-challan', label: 'Delivery Challans', subtitle: 'Outward dispatch & transport note', icon: SendHorizontal, route: '/stock?tab=challan' },
+      { id: 'nav-audit', label: 'Physical Stock Audit', subtitle: 'Reconciliation & variance sheet', icon: ClipboardCheck, route: '/stock?tab=audit' },
       { id: 'nav-cash', label: 'Day Book & Cash Drawer', subtitle: 'Shift float & reconciliation', icon: Banknote, route: '/cash' },
       { id: 'nav-gst', label: 'GST Compliance Hub', subtitle: 'GSTR-1, 3B returns', icon: ShieldCheck, route: '/gst' },
       { id: 'nav-reports', label: 'Analytics & P&L Statement', subtitle: 'Financial reports', icon: BarChart3, route: '/reports' },
@@ -167,7 +178,12 @@ const commandGroups = [
       { id: 'act-add-prod', label: 'Quick Add Product', subtitle: 'Insert into catalog', icon: Package, route: '/items' },
       { id: 'act-new-purch', label: 'New Purchase Bill', subtitle: 'Inward vendor stock', icon: ShoppingBag, route: '/purchase/new' },
       { id: 'act-expense', label: 'Record Petty Cash Expense', subtitle: 'Disburse tea/transport', icon: MinusCircle, route: '/cash' },
-      { id: 'act-reconcile', label: 'Reconcile Stock Count', subtitle: 'Audit warehouse inventory', icon: SlidersHorizontal, route: '/stock' },
+      { id: 'act-reconcile', label: 'Reconcile Stock Count', subtitle: 'Audit warehouse inventory', icon: SlidersHorizontal, route: '/stock?tab=audit' },
+      { id: 'act-transfer', label: 'Inter-Godown Transfer', subtitle: 'Move items between godowns', icon: ArrowLeftRight, route: '/stock?action=transfer' },
+      { id: 'act-new-batch', label: 'Inward New Batch (FEFO)', subtitle: 'Record batch no & expiry', icon: CalendarClock, route: '/stock?tab=batches&action=new_batch' },
+      { id: 'act-register-serial', label: 'Register Serial / IMEI', subtitle: 'Barcode scan serial list', icon: Cpu, route: '/stock?tab=serials&action=new_serial' },
+      { id: 'act-new-grn', label: 'Create Goods Receipt Note', subtitle: 'Record inward truck shipment', icon: Truck, route: '/stock?tab=grn&action=new_grn' },
+      { id: 'act-new-challan', label: 'Issue Delivery Challan', subtitle: 'Generate dispatch note', icon: SendHorizontal, route: '/stock?tab=challan&action=new_challan' },
       { id: 'act-close-day', label: 'Shift / Day Close Register', subtitle: 'Lock cash counter', icon: Lock, route: '/cash' },
       { id: 'act-test-print', label: 'Test Print 80mm Slip', subtitle: 'Trigger thermal printer', icon: Printer, action: () => testPrint() },
     ]
